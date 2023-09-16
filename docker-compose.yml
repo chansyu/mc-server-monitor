@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+    minecraft:
+        image: itzg/minecraft-server
+        ports:
+            - "25565:25565"
+            - "25575:25575"
+        environment:
+            EULA: "TRUE"
+            ENABLE_RCON: "true"
+            RCON_PASSWORD: "minecraft"
+            RCON_PORT: 25575
+            # enable env variable replacement
+            REPLACE_ENV_VARIABLES: "TRUE"
+            # # define an optional prefix for your env variables you want to replace
+            # ENV_VARIABLE_PREFIX: "CFG_"
+            # # and here are the actual variables
+            # CFG_DB_HOST: "http://localhost:3306"
+            # CFG_DB_NAME: "minecraft"
+            # CFG_DB_PASSWORD_FILE: "/run/secrets/db_password"
