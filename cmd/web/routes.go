@@ -1,13 +1,22 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
 
-func (app *application) routes() *http.ServeMux {
-	mux := http.NewServeMux()
+	"github.com/julienschmidt/httprouter"
+)
+
+func (app *application) routes() http.Handler {
+	router := httprouter.New()
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
-	mux.HandleFunc("/", app.home)
-	return mux
+	router.HandlerFunc(http.MethodGet, "/", app.home)
+	router.HandlerFunc(http.MethodGet, "/seed", app.seed)
+	router.HandlerFunc(http.MethodGet, "/users", app.users)
+	router.HandlerFunc(http.MethodPost, "/broadcast", app.broadcast)
+	router.HandlerFunc(http.MethodPost, "/message", app.message)
+
+	return router
 }
