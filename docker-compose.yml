@@ -1,21 +1,42 @@
-version: "3.8"
-
 services:
-    minecraft:
+    mc-server:
+        container_name: mc-server
         image: itzg/minecraft-server
         ports:
             - "25565:25565"
             - "25575:25575"
+        networks:
+            - mc-server-backend
+        volumes:
+            - ${DATA_PATH}:/data
         environment:
             EULA: "TRUE"
             ENABLE_RCON: "true"
-            RCON_PASSWORD: "minecraft"
+            RCON_PASSWORD: ${RCON_PASSWORD}
             RCON_PORT: 25575
             # enable env variable replacement
-            REPLACE_ENV_VARIABLES: "TRUE"
+            # REPLACE_ENV_VARIABLES: "TRUE"
             # # define an optional prefix for your env variables you want to replace
             # ENV_VARIABLE_PREFIX: "CFG_"
             # # and here are the actual variables
             # CFG_DB_HOST: "http://localhost:3306"
             # CFG_DB_NAME: "minecraft"
             # CFG_DB_PASSWORD_FILE: "/run/secrets/db_password"
+    mc-server-monitor:
+        container_name: mc-server-monitor
+        image: mc-server-monitor:multistage
+        networks:
+            - mc-server-backend
+        ports:
+            - "4000:4000"
+        depends_on:
+            mc-server:
+                condition: service_healthy
+                restart: true
+        environment:
+            RCON_ADDRESS: ${RCON_ADDRESS}
+            RCON_PASSWORD: ${RCON_PASSWORD}
+            SERVER_ADDRESS: ${SERVER_ADDRESS}
+networks:
+    mc-server-backend:
+        driver: bridge
