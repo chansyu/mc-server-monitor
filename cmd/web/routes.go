@@ -1,13 +1,24 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
 
-func (app *application) routes() *http.ServeMux {
-	mux := http.NewServeMux()
+	"github.com/itzsBananas/mc-server-monitor/ui"
+	"github.com/julienschmidt/httprouter"
+)
 
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+func (app *application) routes() http.Handler {
+	router := httprouter.New()
 
-	mux.HandleFunc("/", app.home)
-	return mux
+	fileServer := http.FileServer(http.FS(ui.Files))
+
+	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
+
+	router.HandlerFunc(http.MethodGet, "/", app.home)
+	router.HandlerFunc(http.MethodGet, "/seed", app.seed)
+	router.HandlerFunc(http.MethodGet, "/users", app.users)
+	router.HandlerFunc(http.MethodPost, "/broadcast", app.broadcast)
+	router.HandlerFunc(http.MethodPost, "/message", app.message)
+
+	return router
 }
