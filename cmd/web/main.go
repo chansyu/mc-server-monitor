@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	console "github.com/itzsBananas/mc-server-monitor/internal/data"
+	console "github.com/itzsBananas/mc-server-monitor/internal/console"
 )
 
 type application struct {
@@ -25,7 +25,7 @@ func main() {
 
 	con, err := console.Open(rconAddress, rconPassword)
 	if err != nil {
-		errorLog.Fatal(err)
+		errorLog.Print(err)
 	}
 	defer con.Close()
 
