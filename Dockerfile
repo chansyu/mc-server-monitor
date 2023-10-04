@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# https://stackoverflow.com/questions/40873165/use-docker-run-command-to-pass-arguments-to-cmd-in-dockerfile
+# docker build -t mc-server-monitor:multistage .
 
 FROM golang:1.21 AS build-stage
 

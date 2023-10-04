@@ -2,7 +2,6 @@ package console
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/willroberts/minecraft-client"
@@ -36,12 +35,12 @@ func Open(port string, password string) (*Console, error) {
 	return &console, nil
 }
 
+// "There are x users: \nBob, April\n" // what if no users
 func (c *Console) Users() ([]string, error) {
 	resp, err := c.client.SendCommand("list")
 	if err != nil {
 		return nil, err
 	}
-	// log.Println(resp.Body) // "There are x users: \nBob, April\n" // what if no users
 
 	str, err := stripPrefix(resp.Body)
 	if err != nil {
@@ -52,15 +51,15 @@ func (c *Console) Users() ([]string, error) {
 	return list, nil
 }
 
+// "Seed: [1871644822592853811]"
 func (c *Console) Seed() (string, error) {
 	resp, err := c.client.SendCommand("seed")
 	if err != nil {
 		return "", err
 	}
-	log.Println(resp.Body) // "Seed: [1871644822592853811]"
 
 	if len(resp.Body) < 9 {
-		return "", fmt.Errorf("Recieved malformed output from seed command: \"%s\"", resp.Body)
+		return "", fmt.Errorf("recieved malformed output from seed command: \"%s\"", resp.Body)
 	}
 
 	return resp.Body[7 : len(resp.Body)-1], err
@@ -88,6 +87,6 @@ func stripPrefix(msg string) (string, error) {
 	if idx := strings.IndexByte(msg, ':'); idx >= 0 {
 		return msg[idx+1:], nil
 	} else {
-		return msg, fmt.Errorf("Cannot strip prefix w/o colon: \"%s\"", msg)
+		return msg, fmt.Errorf("cannot strip prefix w/o colon: \"%s\"", msg)
 	}
 }

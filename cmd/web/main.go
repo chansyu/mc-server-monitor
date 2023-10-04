@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/itzsBananas/mc-server-monitor/internal/config"
 	console "github.com/itzsBananas/mc-server-monitor/internal/data"
 )
 
@@ -16,16 +15,19 @@ type application struct {
 }
 
 func main() {
-	conf := config.New()
+	serverAddress := getEnv("SERVER_ADDRESS", ":4000")
+	rconAddress := getEnv("RCON_ADDRESS", "127.0.0.1:25575")
+	rconPassword := getEnv("RCON_PASSWORD", "password")
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	con, err := console.Open(conf.RconAddress, conf.RconPassword)
+	con, err := console.Open(rconAddress, rconPassword)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
+	defer con.Close()
 
 	app := &application{
 		errorLog:      errorLog,
@@ -34,12 +36,20 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:     conf.ServerAddress,
+		Addr:     serverAddress,
 		ErrorLog: errorLog,
 		Handler:  app.routes(),
 	}
 
-	infoLog.Printf("Starting server on %s", conf.ServerAddress)
+	infoLog.Printf("Starting server on %s", serverAddress)
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
+}
+
+func getEnv(key string, defaultVal string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+
+	return defaultVal
 }
