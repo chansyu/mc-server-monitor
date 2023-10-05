@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
 )
 
@@ -13,17 +12,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ts, err := template.ParseFiles("./ui/html/pages/home.tmpl.html")
-	if err != nil {
-		app.errorLog.Print(err.Error())
-		app.serverError(w, err)
-		return
-	}
-	err = ts.Execute(w, nil)
-	if err != nil {
-		app.errorLog.Print(err.Error())
-		app.notFound(w)
-	}
+	app.render(w, http.StatusOK, "home.tmpl.html", nil)
 }
 
 func (app *application) seed(w http.ResponseWriter, r *http.Request) {

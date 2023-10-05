@@ -15,29 +15,62 @@ type ConsoleInterface interface {
 }
 
 type Console struct {
-	client *minecraft.Client
+	port, password string
+	client         *minecraft.Client
 }
 
 func Open(port string, password string) (*Console, error) {
-	client, err := minecraft.NewClient(port)
+	console := Console{
+		port:     port,
+		password: password,
+	}
+
+	client, err := console.newClient()
+	console.client = client
+
+	return &console, err
+}
+
+func (c *Console) newClient() (*minecraft.Client, error) {
+	client, err := minecraft.NewClient(c.port)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := client.Authenticate(password); err != nil {
+	if err := client.Authenticate(c.password); err != nil {
+		c.Close()
 		return nil, err
 	}
 
-	console := Console{
-		client: client,
-	}
+	return client, nil
+}
 
-	return &console, nil
+func (c *Console) sendCommand(command string) (minecraft.Message, error) {
+	if c.client == nil { // reconnect
+		client, err := c.newClient()
+		c.client = client
+		if err != nil {
+			return minecraft.Message{}, err
+		}
+	}
+	resp, err := c.client.SendCommand(command)
+	if err != nil {
+		return minecraft.Message{}, err
+	}
+	return resp, nil
+}
+
+func (c *Console) Close() error {
+	fmt.Println("closing")
+	if c.client == nil {
+		return nil
+	}
+	return c.Close()
 }
 
 // "There are x users: \nBob, April\n" // what if no users
 func (c *Console) Users() ([]string, error) {
-	resp, err := c.client.SendCommand("list")
+	resp, err := c.sendCommand("list")
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +86,7 @@ func (c *Console) Users() ([]string, error) {
 
 // "Seed: [1871644822592853811]"
 func (c *Console) Seed() (string, error) {
-	resp, err := c.client.SendCommand("seed")
+	resp, err := c.sendCommand("seed")
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +100,7 @@ func (c *Console) Seed() (string, error) {
 
 func (c *Console) Broadcast(msg string) (string, error) {
 	command := fmt.Sprintf("/say %s", msg)
-	resp, err := c.client.SendCommand(command)
+	resp, err := c.sendCommand(command)
 	if err != nil {
 		return "", err
 	}
@@ -76,7 +109,7 @@ func (c *Console) Broadcast(msg string) (string, error) {
 
 func (c *Console) Message(user string, msg string) (string, error) {
 	command := fmt.Sprintf("/msg %s %s", user, msg)
-	resp, err := c.client.SendCommand(command)
+	resp, err := c.sendCommand(command)
 	if err != nil {
 		return "", err
 	}
