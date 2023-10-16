@@ -17,7 +17,7 @@ type application struct {
 }
 
 func main() {
-	serverAddress := getEnv("SERVER_ADDRESS", ":4000")
+	serverAddress := getEnv("SERVER_ADDRESS", ":8080")
 	rconAddress := getEnv("RCON_ADDRESS", "127.0.0.1:25575")
 	rconPassword := getEnv("RCON_PASSWORD", "password")
 

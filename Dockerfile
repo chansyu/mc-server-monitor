@@ -24,7 +24,7 @@ WORKDIR /
 
 COPY --from=build-stage /mc-server-monitor /mc-server-monitor
 
-EXPOSE 4000
+EXPOSE 8080
 
 USER nonroot:nonroot
 

@@ -28,7 +28,7 @@ services:
         networks:
             - mc-server-backend
         ports:
-            - "4000:4000"
+            - "8080:8080"
         depends_on:
             mc-server:
                 condition: service_healthy
