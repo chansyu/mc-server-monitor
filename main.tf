@@ -34,12 +34,6 @@ provider "google-beta" {
   region  = local.region
 }
 
-# Create service account to run service with no permissions
-resource "google_service_account" "minecraft" {
-  account_id   = "minecraft"
-  display_name = "minecraft"
-}
-
 # Permenant IP address, stays around when VM is off
 resource "google_compute_address" "minecraft" {
   name   = "minecraft-ip"
@@ -74,42 +68,16 @@ resource "google_compute_firewall" "minecraft" {
   target_tags   = ["minecraft"]
 }
 
-resource "google_compute_firewall" "serverless-to-connector" {
-  name    = "serverless-to-connector"
+resource "google_compute_firewall" "server-monitor" {
+  name    = "server-monitor"
   network = google_compute_network.minecraft.name
-  # Minecraft client port
+  # Minecraft rcon port
   allow {
     protocol = "tcp"
-    ports    = ["0-65535"]
+    ports    = ["25575"]
   }
-  allow {
-    protocol = "udp"
-    ports    = ["0-65535"]
-  }
-  allow {
-    protocol = "icmp"
-  }
-  source_ranges = ["35.199.224.0/19"]
-  target_tags   = ["vpc-connector"]
-}
-
-resource "google_compute_firewall" "minecraft-allow-internal" {
-  name    = "minecraft-allow-internal"
-  network = google_compute_network.minecraft.name
-  # Minecraft client port
-  allow {
-    protocol = "tcp"
-    ports    = ["0-65535"]
-  }
-  allow {
-    protocol = "udp"
-    ports    = ["0-65535"]
-  }
-  allow {
-    protocol = "icmp"
-  }
-  source_ranges = ["10.8.0.0/28"]
-  target_tags   = ["minecraft"]
+  source_tags = ["server-monitor"]
+  # target_tags nor service accounts not supported yet for direct vpc egress
 }
 
 
@@ -145,11 +113,6 @@ resource "google_compute_instance" "minecraft" {
     }
   }
 
-  service_account {
-    email  = google_service_account.minecraft.email
-    scopes = ["userinfo-email"]
-  }
-
   scheduling {
     preemptible       = true # Closes within 24 hours (sometimes sooner)
     automatic_restart = false
@@ -172,11 +135,12 @@ resource "google_project_service" "vpcaccess-api" {
 resource "google_cloud_run_v2_service" "server-monitor" {
   name     = "server-monitor"
   project = local.project
-  location = local.region
+  location = "us-central1"
+  launch_stage = "BETA"
 
   template {
     containers {
-      image = "us-west2-docker.pkg.dev/minecraft-626/server-monitor/mc-server-monitor:latest" # change to other one
+      image = "us-west2-docker.pkg.dev/minecraft-626/server-monitor/mc-server-monitor:latest"
       env {
         name = "SERVER_ADDRESS"
         value = ":8080"
@@ -205,9 +169,11 @@ resource "google_cloud_run_v2_service" "server-monitor" {
     }
 
     vpc_access {
-      # Use the VPC Connector
-      connector = google_vpc_access_connector.connector.id
-      # all egress from the service should go through the VPC Connector
+      network_interfaces {
+        network = "minecraft"
+        subnetwork = "minecraft"
+        tags = ["server-monitor"]
+      }
       egress = "ALL_TRAFFIC"
     }
   }
@@ -220,12 +186,4 @@ resource "google_cloud_run_service_iam_binding" "server-monitor" {
     members = [
       "allUsers"
     ]
-}
-
-resource "google_vpc_access_connector" "connector" {
-  name          = "vpc-con"
-  ip_cidr_range = "10.8.0.0/28"
-  network       = google_compute_network.minecraft.name
-  machine_type = "f1-micro"
-  region = local.region
 }
