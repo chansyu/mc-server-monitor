@@ -140,7 +140,7 @@ resource "google_cloud_run_v2_service" "server-monitor" {
 
   template {
     containers {
-      image = "us-west2-docker.pkg.dev/minecraft-626/server-monitor/mc-server-monitor:latest"
+      image = "us-central1-docker.pkg.dev/minecraft-626/cloud-run-source-deploy/mc-server-monitor/server-monitor:latest"
       env {
         name = "SERVER_ADDRESS"
         value = ":8080"
