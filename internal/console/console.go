@@ -3,8 +3,9 @@ package console
 import (
 	"fmt"
 	"strings"
+	"time"
 
-	"github.com/willroberts/minecraft-client"
+	"github.com/jltobler/go-rcon"
 )
 
 type ConsoleInterface interface {
@@ -15,57 +16,38 @@ type ConsoleInterface interface {
 }
 
 type Console struct {
-	port, password string
-	client         *minecraft.Client
+	con     *rcon.Client
+	timeout time.Duration
 }
 
-func Open(port string, password string) (*Console, error) {
-	console := Console{
-		port:     port,
-		password: password,
+func Open(port string, password string, timeout time.Duration) *Console {
+	return &Console{
+		rcon.NewClient(port, password),
+		timeout,
 	}
-
-	client, err := console.newClient()
-	console.client = client
-
-	return &console, err
 }
 
-func (c *Console) newClient() (*minecraft.Client, error) {
-	client, err := minecraft.NewClient(c.port)
-	if err != nil {
-		return nil, err
-	}
+func (c *Console) sendCommand(command string) (string, error) {
+	success := make(chan string, 1)
+	fail := make(chan error, 1)
 
-	if err := client.Authenticate(c.password); err != nil {
-		c.Close()
-		return nil, err
-	}
-
-	return client, nil
-}
-
-func (c *Console) sendCommand(command string) (minecraft.Message, error) {
-	if c.client == nil { // reconnect
-		client, err := c.newClient()
-		c.client = client
+	go func() {
+		resp, err := c.con.Send(command)
 		if err != nil {
-			return minecraft.Message{}, err
+			fail <- err
+		} else {
+			success <- resp
 		}
-	}
-	resp, err := c.client.SendCommand(command)
-	if err != nil {
-		return minecraft.Message{}, err
-	}
-	return resp, nil
-}
+	}()
 
-func (c *Console) Close() error {
-	fmt.Println("closing")
-	if c.client == nil {
-		return nil
+	select {
+	case resp := <-success:
+		return resp, nil
+	case err := <-fail:
+		return "", err
+	case <-time.After(c.timeout):
+		return "", fmt.Errorf("console connection timeout")
 	}
-	return c.Close()
 }
 
 // "There are x users: \nBob, April\n" // what if no users
@@ -75,7 +57,7 @@ func (c *Console) Users() ([]string, error) {
 		return nil, err
 	}
 
-	str, err := stripPrefix(resp.Body)
+	str, err := stripPrefix(resp)
 	if err != nil {
 		return nil, err
 	}
@@ -91,11 +73,11 @@ func (c *Console) Seed() (string, error) {
 		return "", err
 	}
 
-	if len(resp.Body) < 9 {
-		return "", fmt.Errorf("recieved malformed output from seed command: \"%s\"", resp.Body)
+	if len(resp) < 9 {
+		return "", fmt.Errorf("recieved malformed output from seed command: \"%s\"", resp)
 	}
 
-	return resp.Body[7 : len(resp.Body)-1], err
+	return resp[7 : len(resp)-1], err
 }
 
 func (c *Console) Broadcast(msg string) (string, error) {
@@ -104,7 +86,7 @@ func (c *Console) Broadcast(msg string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return resp.Body, nil
+	return resp, nil
 }
 
 func (c *Console) Message(user string, msg string) (string, error) {
@@ -113,7 +95,7 @@ func (c *Console) Message(user string, msg string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return resp.Body, nil
+	return resp, nil
 }
 
 func stripPrefix(msg string) (string, error) {

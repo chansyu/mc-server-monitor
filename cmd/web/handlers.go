@@ -16,7 +16,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) seed(w http.ResponseWriter, r *http.Request) {
-	s, _ := app.remoteConsole.Seed()
+	s, err := app.remoteConsole.Seed()
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	}
 	w.Write([]byte(s))
 }
 

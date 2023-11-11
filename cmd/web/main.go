@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	console "github.com/itzsBananas/mc-server-monitor/internal/console"
 )
@@ -18,18 +19,20 @@ type application struct {
 
 func main() {
 	serverAddress := getEnv("SERVER_ADDRESS", ":8080")
-	rconAddress := getEnv("RCON_ADDRESS", "127.0.0.1:25575")
+	rconAddress := getEnv("RCON_ADDRESS", "rcon://127.0.0.1:25575")
 	rconPassword := getEnv("RCON_PASSWORD", "password")
+	rconTimeoutString := getEnv("RCON_TIMEOUT", "5s")
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	con, err := console.Open(rconAddress, rconPassword)
+	rconTimeout, err := time.ParseDuration(rconTimeoutString)
 	if err != nil {
-		errorLog.Print(err)
+		rconTimeout = 5 * time.Second
 	}
-	defer con.Close()
+
+	con := console.Open(rconAddress, rconPassword, rconTimeout)
 
 	templateCache, err := newTemplateCache()
 	if err != nil {
