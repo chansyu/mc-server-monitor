@@ -1,4 +1,4 @@
-# You need to fill these locals out with the project, region and zone
+# You need to fill these locals out with the project, region, zone and mc-version
 # Then to boot it up, run:-
 #   gcloud auth application-default login
 #   terraform init
@@ -8,4 +8,5 @@ locals {
   project = "minecraft-626"
   region  = "us-west2"
   zone    = "us-west2-a"
+  mc_version = "1.20.2"
 }
