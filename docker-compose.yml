@@ -11,20 +11,13 @@ services:
             - ${DATA_PATH}:/data
         environment:
             EULA: "TRUE"
-            ENABLE_RCON: "true"
+            ENABLE_RCON: "TRUE"
             RCON_PASSWORD: ${RCON_PASSWORD}
             RCON_PORT: 25575
-            # enable env variable replacement
-            # REPLACE_ENV_VARIABLES: "TRUE"
-            # # define an optional prefix for your env variables you want to replace
-            # ENV_VARIABLE_PREFIX: "CFG_"
-            # # and here are the actual variables
-            # CFG_DB_HOST: "http://localhost:3306"
-            # CFG_DB_NAME: "minecraft"
-            # CFG_DB_PASSWORD_FILE: "/run/secrets/db_password"
     mc-server-monitor:
         container_name: mc-server-monitor
-        image: mc-server-monitor:multistage
+        image: cosmtrek/air # hot reloading
+        working_dir: /app/
         networks:
             - mc-server-backend
         ports:
@@ -37,6 +30,8 @@ services:
             RCON_ADDRESS: ${RCON_ADDRESS}
             RCON_PASSWORD: ${RCON_PASSWORD}
             SERVER_ADDRESS: ${SERVER_ADDRESS}
+        volumes:
+            - ./:/app/
 networks:
     mc-server-backend:
         driver: bridge
