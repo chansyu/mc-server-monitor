@@ -22,10 +22,6 @@ services:
             - mc-server-backend
         ports:
             - "8080:8080"
-        depends_on:
-            mc-server:
-                condition: service_healthy
-                restart: true
         environment:
             RCON_ADDRESS: ${RCON_ADDRESS}
             RCON_PASSWORD: ${RCON_PASSWORD}
