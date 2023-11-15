@@ -23,8 +23,6 @@ go.work
 # TLS Certificate
 tls/
 
-.env
-
 # Local .terraform directories
 **/.terraform/*
 
@@ -60,5 +58,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Additional Ignored Directories
 # Ignore tmp file created by cosmtrek/air image
 /tmp
+/data
