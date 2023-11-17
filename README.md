@@ -15,7 +15,7 @@ git pull https://github.com/itzsBananas/mc-server-monitor.git
 
 ### Quickstart
 
-To get started quickly (w/ [Docker](https://www.docker.com/)), use the docker command at the repository root
+To get started quickly (w/ [Docker](https://www.docker.com/) installed), use the docker command at the repository root
 
 ```bash
 docker compose up
@@ -25,7 +25,7 @@ This command boots up a minecraft server and the web server preemptively serving
 
 ### Advanced
 
-If you have a local server already running, you can run the command (w/ [Golang](https://go.dev/) at the repository root
+If you have a local server already running, you can run the command (w/ [Golang](https://go.dev/ installed) at the repository root
 
 ```bash
 go run ./cmd/web
@@ -41,9 +41,38 @@ Both commands boot up the web server at port 25575.
 
 ## Usage (hosted on GCP)
 
-IN PROGRESS; use the scripts in the deployments directory (for advanced users)
+⚠️ Incurs cost
+
+Cost Breakdown
+
+-   Static IP - $1.49 / month
+-   Compute Engine (Preemptible VM) - $0.01 / hr
+-   Persistent Disk - $0.50 / month
+-   VM-VM egress pricing - <=$0.15 per GB
+-   Cloud Run - Covered under Free tier for most cases; Refer to the [Cloud Run Pricing Page](https://cloud.google.com/run/pricing) for more details
+
+To get started, start a cloud project on [Google Cloud Platform](https://console.cloud.google.com). Take note of the PROJECT_ID.
+Then, create a bucket in the [storage section](https://console.cloud.google.com/storage/browser).
+Take note of the BUCKET_ID.
+
+Then, change the block in [locals.tf](deployments/locals.tf) based on the previous names. Choose other attributes based on your preference.
+
+Finally, use the command (w/ [Terraform](https://www.terraform.io/) installed) in the deployments directory
+
+```bash
+terraform init
+terraform apply
+```
+
+If successful, you can view the minecraft [server](https://console.cloud.google.com/compute/instances)
+
+![Diagram of the Cloud Architecture of MC-Server-Monitor](assets/cloud-architecture.png)
+
+Cloud Architecture of MC-Server-Monitor
 
 ## Acknowledgements
+
+Thanks to [itzg](https://github.com/itzg) and [Futurice](https://github.com/futurice) for the docker image and terraform script respectively.
 
 ## Contributing
 
