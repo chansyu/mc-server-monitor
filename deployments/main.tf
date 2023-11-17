@@ -20,7 +20,7 @@ terraform {
 
   backend "gcs" {
     prefix = "minecraft/state"
-    bucket = "minecraft-626"
+    bucket = local.bucket
   }
 }
 
