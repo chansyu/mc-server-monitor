@@ -23,7 +23,7 @@ func (app *application) seed(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := &templateData{Response: output}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", "response", data)
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) users(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +34,7 @@ func (app *application) users(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := &templateData{Response: strings.Join(output, "")}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", "response", data)
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) broadcast(w http.ResponseWriter, r *http.Request) {

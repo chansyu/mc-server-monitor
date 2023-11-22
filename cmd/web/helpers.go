@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"strings"
 )
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
@@ -43,7 +44,7 @@ func (app *application) renderPage(w http.ResponseWriter, status int, fileName s
 	buf.WriteTo(w)
 }
 
-func (app *application) renderPartial(w http.ResponseWriter, status int, fileName string, templateName string, data *templateData) {
+func (app *application) renderPartial(w http.ResponseWriter, status int, fileName string, data *templateData) {
 	ts, ok := app.templateCache[fileName]
 	if !ok {
 		err := fmt.Errorf("the partial template %s does not exist", fileName)
@@ -53,7 +54,7 @@ func (app *application) renderPartial(w http.ResponseWriter, status int, fileNam
 
 	buf := new(bytes.Buffer)
 
-	err := ts.ExecuteTemplate(buf, templateName, data)
+	err := ts.ExecuteTemplate(buf, baseName(fileName), data)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -62,4 +63,9 @@ func (app *application) renderPartial(w http.ResponseWriter, status int, fileNam
 	w.WriteHeader(status)
 
 	buf.WriteTo(w)
+}
+
+func baseName(fileName string) string {
+	f := strings.Split(fileName, ".")
+	return f[0]
 }

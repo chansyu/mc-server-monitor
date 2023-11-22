@@ -37,13 +37,19 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		cache[name] = ts
 	}
 
-	// TODO: add entry page more cleanly
-	name := filepath.Base("response.tmpl.html")
-	ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, "html/partials/response.tmpl.html")
+	partials, err := fs.Glob(ui.Files, "html/partials/*.html")
 	if err != nil {
 		return nil, err
 	}
-	cache[name] = ts
+	for _, partial := range partials {
+		name := filepath.Base(partial)
+
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, partial)
+		if err != nil {
+			return nil, err
+		}
+		cache[name] = ts
+	}
 
 	return cache, nil
 }
