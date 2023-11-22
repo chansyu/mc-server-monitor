@@ -1,5 +1,21 @@
 {{define "title"}}Home{{end}}
 {{define "main"}}
     <h2>Home</h2>
-    <p>There's nothing to be seen yet...</p>
+    <button hx-get="/seed"
+    hx-trigger="click"
+    hx-target="#parent-div"
+    hx-swap="innerHTML"
+    >
+    Seed
+    </button>
+    <button hx-get="/users"
+    hx-trigger="click"
+    hx-target="#parent-div"
+    hx-swap="innerHTML"
+    >
+    Users
+    </button>
+    <div id="parent-div">
+        N/A
+    </div>
 {{end}}

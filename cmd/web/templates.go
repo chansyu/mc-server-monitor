@@ -9,6 +9,7 @@ import (
 )
 
 type templateData struct {
+	Response string
 }
 
 var functions = template.FuncMap{}
@@ -35,5 +36,14 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		}
 		cache[name] = ts
 	}
+
+	// TODO: add entry page more cleanly
+	name := filepath.Base("response.tmpl.html")
+	ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, "html/partials/response.tmpl.html")
+	if err != nil {
+		return nil, err
+	}
+	cache[name] = ts
+
 	return cache, nil
 }
