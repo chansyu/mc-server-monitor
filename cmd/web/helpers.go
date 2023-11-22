@@ -22,10 +22,10 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
-func (app *application) render(w http.ResponseWriter, status int, page string, data *templateData) {
-	ts, ok := app.templateCache[page]
+func (app *application) renderPage(w http.ResponseWriter, status int, fileName string, data *templateData) {
+	ts, ok := app.templateCache[fileName]
 	if !ok {
-		err := fmt.Errorf("the template %s does not exist", page)
+		err := fmt.Errorf("the template %s does not exist", fileName)
 		app.serverError(w, err)
 		return
 	}
@@ -33,6 +33,27 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 	buf := new(bytes.Buffer)
 
 	err := ts.ExecuteTemplate(buf, "base", data)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	w.WriteHeader(status)
+
+	buf.WriteTo(w)
+}
+
+func (app *application) renderPartial(w http.ResponseWriter, status int, fileName string, templateName string, data *templateData) {
+	ts, ok := app.templateCache[fileName]
+	if !ok {
+		err := fmt.Errorf("the partial template %s does not exist", fileName)
+		app.serverError(w, err)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+
+	err := ts.ExecuteTemplate(buf, templateName, data)
 	if err != nil {
 		app.serverError(w, err)
 		return

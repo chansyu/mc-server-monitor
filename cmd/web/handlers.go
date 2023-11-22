@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"strings"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -12,25 +12,29 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, http.StatusOK, "home.tmpl.html", nil)
+	app.renderPage(w, http.StatusOK, "home.tmpl.html", nil)
 }
 
 func (app *application) seed(w http.ResponseWriter, r *http.Request) {
-	s, err := app.remoteConsole.Seed()
+	output, err := app.remoteConsole.Seed()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
-	w.Write([]byte(s))
+
+	data := &templateData{Response: output}
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", "response", data)
 }
 
 func (app *application) users(w http.ResponseWriter, r *http.Request) {
-	s, err := app.remoteConsole.Users()
+	output, err := app.remoteConsole.Users()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
-	w.Write([]byte(fmt.Sprint(s)))
+
+	data := &templateData{Response: strings.Join(output, "")}
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", "response", data)
 }
 
 func (app *application) broadcast(w http.ResponseWriter, r *http.Request) {

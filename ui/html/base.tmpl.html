@@ -3,22 +3,20 @@
 <html lang='en'>
     <head>
         <meta charset='utf-8'>
-        <title>{{template "title" .}} - MC-Server-Monitor</title>
+        <title>{{template "title" .}} - MC Server Monitor</title>
         <!-- <link rel='stylesheet' href='/static/css/main.css'> -->
         <!-- <link rel='shortcut icon' href='/static/img/favicon.ico' type='image/x-icon'> -->
+        <script src="/static/js/htmx.min.js.js"></script>
         <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'>
     </head>
-    <body>
+    <body hx-boost="true">
         <header>
-            <h1><a href='/'>MC-Server-Monitor</a></h1>
+            <h1><a href='/'>Minecraft Server Monitor</a></h1>
         </header>
         {{template "nav" .}}
         <main>
             {{template "main" .}}
         </main>
-        <footer>
-            Powered by <a href='https://golang.org/'>Go</a>
-        </footer>
     </body>
 </html>
 {{end}}
