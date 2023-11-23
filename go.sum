@@ -1,3 +1,6 @@
+github.com/go-playground/assert/v2 v2.0.1/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
+github.com/go-playground/form/v4 v4.2.1 h1:HjdRDKO0fftVMU5epjPW2SOREcZ6/wLUzEobqUGJuPw=
+github.com/go-playground/form/v4 v4.2.1/go.mod h1:q1a2BY+AQUUzhl6xA/6hBetay6dEIhMHjgvJiGo6K7U=
 github.com/jltobler/go-rcon v0.3.0 h1:iaa4bLak3MAuIIpGJb5j05x+XazPMJklWHmTUbpT3SM=
 github.com/jltobler/go-rcon v0.3.0/go.mod h1:pBX1cDeqcs0QZTy2nffNreX0CyjGxU6AIXGbK83RKSs=
 github.com/julienschmidt/httprouter v1.3.0 h1:U0609e9tgbseu3rBINet9P48AI/D3oJs4dN7jwJOQ1U=

@@ -1,21 +1,28 @@
 {{define "title"}}Home{{end}}
 {{define "main"}}
+<main hx-boost="true" hx-push-url="false" hx-swap="beforeend">
     <h2>Home</h2>
     <button hx-get="/seed"
-    hx-trigger="click"
-    hx-target="#parent-div"
-    hx-swap="innerHTML"
-    >
+            hx-target="#parent-div">
     Seed
     </button>
     <button hx-get="/users"
-    hx-trigger="click"
-    hx-target="#parent-div"
-    hx-swap="innerHTML"
-    >
+            hx-target="#parent-div">
     Users
     </button>
+    <form action="/broadcast" method="post" hx-target="#parent-div">
+        <label for="broadcast"></label>
+        <input id="broadcast" type="text" name="message"/>
+        <input type="submit" value="Broadcast"/>
+    </form>
+    <form action="/message" method="post" hx-target="#parent-div">
+        <label for="message"></label>
+        <input id="user" type="text" name="user"/>
+        <input id="message" type="text" name="message"/>
+        <input type="submit" value="message"/>
+    </form>
     <div id="parent-div">
         N/A
     </div>
+</main>
 {{end}}

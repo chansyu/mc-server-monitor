@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-playground/form/v4"
 	console "github.com/itzsBananas/mc-server-monitor/internal/console"
 )
 
@@ -15,6 +16,7 @@ type application struct {
 	infoLog       *log.Logger
 	remoteConsole console.ConsoleInterface
 	templateCache map[string]*template.Template
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -39,11 +41,14 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	formDecoder := form.NewDecoder()
+
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		remoteConsole: con,
 		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 
 	srv := &http.Server{

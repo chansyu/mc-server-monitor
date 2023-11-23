@@ -1,9 +1,11 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
+
+	"github.com/go-playground/form/v4"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -39,12 +41,11 @@ func (app *application) users(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) broadcast(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Message string `json:"message"`
+		Message string `form:"message"`
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&input)
+	err := app.decodePostForm(r, &input)
 	if err != nil {
-		app.errorLog.Fatalf(err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -53,19 +54,19 @@ func (app *application) broadcast(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, err)
 	} else {
-		w.Write([]byte(output))
+		data := &templateData{Response: output}
+		app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 	}
 }
 
 func (app *application) message(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		User    string `json:"user"`
-		Message string `json:"message"`
+		User    string `form:"user"`
+		Message string `form:"message"`
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&input)
+	err := app.decodePostForm(r, &input)
 	if err != nil {
-		app.errorLog.Fatalf(err.Error())
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -74,6 +75,24 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, err)
 	} else {
-		w.Write([]byte(output)) // No player was found or You whisper to itsBananas: this is a pm
+		data := &templateData{Response: output}
+		app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 	}
+}
+
+func (app *application) decodePostForm(r *http.Request, dst any) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	err = app.formDecoder.Decode(dst, r.PostForm)
+	if err != nil {
+		var invalidDecoderError *form.InvalidDecoderError
+		if errors.As(err, &invalidDecoderError) {
+			panic(err)
+		}
+		return err
+	}
+	return nil
 }

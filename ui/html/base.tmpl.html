@@ -9,14 +9,11 @@
         <script src="/static/js/htmx.min.js.js"></script>
         <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'>
     </head>
-    <body hx-boost="true">
+    <body>
         <header>
-            <h1><a href='/'>Minecraft Server Monitor</a></h1>
+            <h1>Minecraft Server Monitor</h1>
         </header>
-        {{template "nav" .}}
-        <main>
-            {{template "main" .}}
-        </main>
+        {{template "main" .}}
     </body>
 </html>
 {{end}}
