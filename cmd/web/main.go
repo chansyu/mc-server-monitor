@@ -14,7 +14,7 @@ import (
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
-	remoteConsole console.ConsoleInterface
+	console       console.ConsoleInterface
 	templateCache map[string]*template.Template
 	formDecoder   *form.Decoder
 }
@@ -46,7 +46,7 @@ func main() {
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
-		remoteConsole: con,
+		console:       con,
 		templateCache: templateCache,
 		formDecoder:   formDecoder,
 	}

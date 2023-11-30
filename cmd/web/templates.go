@@ -4,15 +4,26 @@ import (
 	"html/template"
 	"io/fs"
 	"path/filepath"
+	"time"
 
+	"github.com/itzsBananas/mc-server-monitor/internal/console"
 	"github.com/itzsBananas/mc-server-monitor/ui"
 )
 
 type templateData struct {
-	Response string
+	Response console.Response
 }
 
-var functions = template.FuncMap{}
+func humanDate(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+	return t.UTC().Format("02 Jan 2006 at 15:04")
+}
+
+var functions = template.FuncMap{
+	"humanDate": humanDate,
+}
 
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}

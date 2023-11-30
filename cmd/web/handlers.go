@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/go-playground/form/v4"
 )
@@ -18,24 +17,22 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) seed(w http.ResponseWriter, r *http.Request) {
-	output, err := app.remoteConsole.Seed()
+	output, err := app.console.Seed()
 	if err != nil {
 		app.serverError(w, err)
-		return
 	}
 
-	data := &templateData{Response: output}
+	data := &templateData{Response: *output}
 	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) users(w http.ResponseWriter, r *http.Request) {
-	output, err := app.remoteConsole.Users()
+	output, err := app.console.Users()
 	if err != nil {
 		app.serverError(w, err)
-		return
 	}
 
-	data := &templateData{Response: strings.Join(output, "")}
+	data := &templateData{Response: *output}
 	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
@@ -50,13 +47,12 @@ func (app *application) broadcast(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	output, err := app.remoteConsole.Broadcast(input.Message)
+	output, err := app.console.Broadcast(input.Message)
 	if err != nil {
 		app.serverError(w, err)
-	} else {
-		data := &templateData{Response: output}
-		app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 	}
+	data := &templateData{Response: *output}
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) message(w http.ResponseWriter, r *http.Request) {
@@ -71,13 +67,13 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	output, err := app.remoteConsole.Message(input.User, input.Message)
+	output, err := app.console.Message(input.User, input.Message)
 	if err != nil {
 		app.serverError(w, err)
-	} else {
-		data := &templateData{Response: output}
-		app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 	}
+	data := &templateData{Response: *output}
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
+
 }
 
 func (app *application) decodePostForm(r *http.Request, dst any) error {

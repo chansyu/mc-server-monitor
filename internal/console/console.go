@@ -9,40 +9,40 @@ import (
 )
 
 type ConsoleInterface interface {
-	Users() ([]string, error)
-	Seed() (string, error)
-	Broadcast(msg string) (string, error)
-	Message(user string, msg string) (string, error)
+	Users() (*Response, error)
+	Seed() (*Response, error)
+	Broadcast(msg string) (*Response, error)
+	Message(user string, msg string) (*Response, error)
 }
 
-type Console struct {
+type ConsoleModel struct {
 	con     *rcon.Client
 	timeout time.Duration
 }
 
-func Open(port string, password string, timeout time.Duration) *Console {
-	return &Console{
+func Open(port string, password string, timeout time.Duration) *ConsoleModel {
+	return &ConsoleModel{
 		rcon.NewClient(port, password),
 		timeout,
 	}
 }
 
-func (c *Console) sendCommand(command string) (string, error) {
+func (c *ConsoleModel) sendCommand(command string) (string, error) {
 	success := make(chan string, 1)
 	fail := make(chan error, 1)
 
 	go func() {
-		resp, err := c.con.Send(command)
+		reply, err := c.con.Send(command)
 		if err != nil {
 			fail <- err
 		} else {
-			success <- resp
+			success <- reply
 		}
 	}()
 
 	select {
-	case resp := <-success:
-		return resp, nil
+	case reply := <-success:
+		return reply, nil
 	case err := <-fail:
 		return "", err
 	case <-time.After(c.timeout):
@@ -51,50 +51,66 @@ func (c *Console) sendCommand(command string) (string, error) {
 }
 
 // "There are x users: \nBob, April\n" // what if no users
-func (c *Console) Users() ([]string, error) {
-	resp, err := c.sendCommand("list")
+func (c *ConsoleModel) Users() (*Response, error) {
+	reply, err := c.sendCommand("/list")
+	resp := newResponse("Users", nil)
+
 	if err != nil {
-		return nil, err
+		resp.consoleDisconnect()
+		return resp, err
 	}
 
-	str, err := stripPrefix(resp)
+	list, err := stripPrefix(reply)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
-	str = strings.ReplaceAll(str, " ", "")
-	list := strings.Split(str, ",")
-	return list, nil
-}
-
-// "Seed: [1871644822592853811]"
-func (c *Console) Seed() (string, error) {
-	resp, err := c.sendCommand("seed")
-	if err != nil {
-		return "", err
-	}
-
-	if len(resp) < 9 {
-		return "", fmt.Errorf("recieved malformed output from seed command: \"%s\"", resp)
-	}
-
-	return resp[7 : len(resp)-1], err
-}
-
-func (c *Console) Broadcast(msg string) (string, error) {
-	command := fmt.Sprintf("/say %s", msg)
-	resp, err := c.sendCommand(command)
-	if err != nil {
-		return "", err
-	}
+	resp.consoleSuccess(list)
 	return resp, nil
 }
 
-func (c *Console) Message(user string, msg string) (string, error) {
-	command := fmt.Sprintf("/msg %s %s", user, msg)
-	resp, err := c.sendCommand(command)
+// "Seed: [1871644822592853811]"
+func (c *ConsoleModel) Seed() (*Response, error) {
+	reply, err := c.sendCommand("/seed")
+	resp := newResponse("Seed", nil)
+
 	if err != nil {
-		return "", err
+		resp.consoleDisconnect()
+		return resp, err
 	}
+
+	if len(reply) < 9 {
+		return resp, fmt.Errorf("recieved malformed output from seed command: \"%s\"", reply)
+	}
+
+	resp.consoleSuccess(reply[7 : len(reply)-1])
+	return resp, err
+}
+
+func (c *ConsoleModel) Broadcast(message string) (*Response, error) {
+	command := fmt.Sprintf("/say %s", message)
+	reply, err := c.sendCommand(command)
+	resp := newResponse("Broadcast Message", []string{message})
+
+	if err != nil {
+		resp.consoleDisconnect()
+		return resp, err
+	}
+	resp.consoleSuccess(reply)
+	return resp, nil
+}
+
+func (c *ConsoleModel) Message(user string, message string) (*Response, error) {
+	command := fmt.Sprintf("/msg %s %s", user, message)
+	reply, err := c.sendCommand(command)
+	resp := newResponse("Private Message", []string{user, message})
+
+	if err != nil {
+		resp.consoleDisconnect()
+		return resp, err
+	}
+
+	// TODO: need to check if user is not available
+	resp.consoleSuccess(reply)
 	return resp, nil
 }
 

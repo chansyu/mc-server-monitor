@@ -1,5 +1,13 @@
 {{define "response"}}
-    <div>
-        {{.Response}}
-    </div>
+    {{if .Response.Success}}
+    <figure class="ok">
+        <strong class="block titlebar">Success</strong>
+    {{else}}
+    <figure class="bad">
+        <strong class="block titlebar">Error</strong>
+    {{end}}
+        <figcaption>{{.Response.Command}} {{.Response.Args}}</figcaption>
+        {{.Response.Message}}
+        {{humanDate .Response.Timestamp}}
+    </figure>
 {{end}}
