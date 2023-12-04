@@ -3,8 +3,10 @@ package main
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/go-playground/form/v4"
+	console "github.com/itzsBananas/mc-server-monitor/internal/console"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -12,8 +14,14 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
+	output, _ := app.console.Users()
+	var users []string
+	if len(output.Message) > 0 {
+		users = strings.Split(output.Message, ",")
+	}
 
-	app.renderPage(w, http.StatusOK, "home.tmpl.html", nil)
+	data := &templateData{Users: users}
+	app.renderPage(w, http.StatusOK, "home.tmpl.html", data)
 }
 
 func (app *application) seed(w http.ResponseWriter, r *http.Request) {
@@ -36,25 +44,6 @@ func (app *application) users(w http.ResponseWriter, r *http.Request) {
 	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
-func (app *application) broadcast(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Message string `form:"message"`
-	}
-
-	err := app.decodePostForm(r, &input)
-	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	output, err := app.console.Broadcast(input.Message)
-	if err != nil {
-		app.serverError(w, err)
-	}
-	data := &templateData{Response: *output}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
-}
-
 func (app *application) message(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		User    string `form:"user"`
@@ -67,7 +56,13 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	output, err := app.console.Message(input.User, input.Message)
+	var output *console.Response
+	if input.User == "All Players" {
+		output, err = app.console.Broadcast(input.Message)
+	} else {
+		output, err = app.console.Message(input.User, input.Message)
+	}
+
 	if err != nil {
 		app.serverError(w, err)
 	}

@@ -17,7 +17,6 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/", app.home)
 	router.HandlerFunc(http.MethodGet, "/seed", app.seed)
 	router.HandlerFunc(http.MethodGet, "/users", app.users)
-	router.HandlerFunc(http.MethodPost, "/broadcast", app.broadcast)
 	router.HandlerFunc(http.MethodPost, "/message", app.message)
 
 	return router

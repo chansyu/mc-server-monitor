@@ -11,6 +11,7 @@ import (
 )
 
 type templateData struct {
+	Users    []string
 	Response console.Response
 }
 

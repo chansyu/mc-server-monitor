@@ -10,19 +10,18 @@
             hx-target="#parent-div">
     Users
     </button>
-    <form action="/broadcast" method="post" hx-target="#parent-div">
-        <label for="broadcast"></label>
-        <input id="broadcast" type="text" name="message"/>
-        <input type="submit" value="Broadcast"/>
-    </form>
     <form action="/message" method="post" hx-target="#parent-div">
-        <label for="message"></label>
-        <input id="user" type="text" name="user"/>
+        <label for="message">Message</label>
+        <select id="user" name="user">
+            <option value="All Players">All Players</option>
+            {{range .Users}}
+            <option value="{{.}}">{{.}}</option>
+            {{end}}
+        </select>
         <input id="message" type="text" name="message"/>
         <input type="submit" value="message"/>
     </form>
     <div id="parent-div">
-        N/A
     </div>
 </main>
 {{end}}

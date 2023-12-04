@@ -64,6 +64,7 @@ func (c *ConsoleModel) Users() (*Response, error) {
 	if err != nil {
 		return resp, err
 	}
+	list = strings.ReplaceAll(list, " ", "")
 	resp.consoleSuccess(list)
 	return resp, nil
 }
@@ -110,6 +111,9 @@ func (c *ConsoleModel) Message(user string, message string) (*Response, error) {
 	}
 
 	// TODO: need to check if user is not available
+	if resp.Message == "No player was found" {
+		return resp, err
+	}
 	resp.consoleSuccess(reply)
 	return resp, nil
 }
