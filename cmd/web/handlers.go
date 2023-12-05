@@ -73,3 +73,39 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(output)) // No player was found or You whisper to itsBananas: this is a pm
 	}
 }
+
+func (app *application) start(w http.ResponseWriter, r *http.Request) {
+	err := app.serverStarter.Start()
+	if err != nil {
+		app.serverError(w, err)
+	} else {
+		w.Write([]byte("Success!"))
+	}
+}
+
+func (app *application) stop(w http.ResponseWriter, r *http.Request) {
+	err := app.serverStarter.Stop()
+	if err != nil {
+		app.serverError(w, err)
+	} else {
+		w.Write([]byte("Success!"))
+	}
+}
+
+func (app *application) restart(w http.ResponseWriter, r *http.Request) {
+	err := app.serverStarter.Restart()
+	if err != nil {
+		app.serverError(w, err)
+	} else {
+		w.Write([]byte("Success!"))
+	}
+}
+
+func (app *application) ready(w http.ResponseWriter, r *http.Request) {
+	isReady := app.serverStarter.Ready()
+	if !isReady {
+		app.serverError(w, fmt.Errorf("not ready"))
+	} else {
+		w.Write([]byte("Online!"))
+	}
+}
