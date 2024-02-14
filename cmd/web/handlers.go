@@ -14,9 +14,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-	output, _ := app.console.Users()
+	output, err := app.console.Users()
 	var users []string
-	if len(output.Message) > 0 {
+	if err != nil && len(output.Message) > 0 {
 		users = strings.Split(output.Message, ",")
 	}
 
