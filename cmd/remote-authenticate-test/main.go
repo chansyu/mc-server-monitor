@@ -5,38 +5,21 @@ import (
 	"fmt"
 	"log"
 
-	compute "cloud.google.com/go/compute/apiv1"
-	computepb "cloud.google.com/go/compute/apiv1/computepb"
+	admin_console "github.com/itzsBananas/mc-server-monitor/internal/admin-console"
 )
 
 func main() {
 	ctx := context.Background()
-	// This snippet has been automatically generated and should be regarded as a code template only.
-	// It will require modifications to work:
-	// - It may require correct/in-range values for request initialization.
-	// - It may require specifying regional endpoints when creating the service client as shown in:
-	//   https://pkg.go.dev/cloud.google.com/go#hdr-Client_Options
-	c, err := compute.NewInstancesRESTClient(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer c.Close()
 
-	req := &computepb.StartInstanceRequest{
-		Project:  "minecraft-626",
-		Instance: "minecraft",
-		Zone:     "us-west2-a",
-		// TODO: Fill request struct fields.
-		// See https://pkg.go.dev/cloud.google.com/go/compute/apiv1/computepb#StartInstanceRequest.
-	}
-	op, err := c.Start(ctx, req)
+	console, err := admin_console.Open(ctx, "minecraft-626", "minecraft", "us-west2-a")
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer console.Close()
 
-	err = op.Wait(ctx)
+	b, err := console.IsOnline()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Success")
+	fmt.Println(b)
 }
