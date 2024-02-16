@@ -8,99 +8,105 @@ import (
 	computepb "cloud.google.com/go/compute/apiv1/computepb"
 )
 
-type AdminConsole struct {
-	client            *compute.InstancesClient
-	context           context.Context
-	requestParameters RequestParameters
-}
-
-type RequestParameters struct {
+type GCPAdminConsole struct {
 	project  string
 	instance string
 	zone     string
 }
 
-func Open(ctx context.Context, project, instance, zone string) (*AdminConsole, error) {
-	c, err := compute.NewInstancesRESTClient(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &AdminConsole{
-		client:  c,
-		context: ctx,
-		requestParameters: RequestParameters{
-			project, instance, zone,
-		},
+func Open(project, instance, zone string) (*GCPAdminConsole, error) {
+	return &GCPAdminConsole{
+		project, instance, zone,
 	}, nil
 }
 
-func (c AdminConsole) Start() error {
+func (c GCPAdminConsole) Start(ctx context.Context) error {
+	client, err := compute.NewInstancesRESTClient(ctx)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
 	req := &computepb.StartInstanceRequest{
-		Project:  c.requestParameters.project,
-		Instance: c.requestParameters.instance,
-		Zone:     c.requestParameters.zone,
+		Project:  c.project,
+		Instance: c.instance,
+		Zone:     c.zone,
 	}
-	op, err := c.client.Start(c.context, req)
+	op, err := client.Start(ctx, req)
 	if err != nil {
 		return err
 	}
 
-	err = op.Wait(c.context)
+	err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c AdminConsole) Restart() error {
+func (c GCPAdminConsole) Restart(ctx context.Context) error {
+	client, err := compute.NewInstancesRESTClient(ctx)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
 	req := &computepb.ResetInstanceRequest{
-		Project:  c.requestParameters.project,
-		Instance: c.requestParameters.instance,
-		Zone:     c.requestParameters.zone,
+		Project:  c.project,
+		Instance: c.instance,
+		Zone:     c.zone,
 	}
-	op, err := c.client.Reset(c.context, req)
+	op, err := client.Reset(ctx, req)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = op.Wait(c.context)
+	err = op.Wait(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return nil
 }
 
-func (c AdminConsole) Stop() error {
+func (c GCPAdminConsole) Stop(ctx context.Context) error {
+	client, err := compute.NewInstancesRESTClient(ctx)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
 	req := &computepb.StopInstanceRequest{
-		Project:  c.requestParameters.project,
-		Instance: c.requestParameters.instance,
-		Zone:     c.requestParameters.zone,
+		Project:  c.project,
+		Instance: c.instance,
+		Zone:     c.zone,
 	}
-	op, err := c.client.Stop(c.context, req)
+	op, err := client.Stop(ctx, req)
 	if err != nil {
 		return err
 	}
 
-	err = op.Wait(c.context)
+	err = op.Wait(ctx)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c AdminConsole) IsOnline() (bool, error) {
-	req := &computepb.GetInstanceRequest{
-		Project:  c.requestParameters.project,
-		Instance: c.requestParameters.instance,
-		Zone:     c.requestParameters.zone,
+func (c GCPAdminConsole) IsOnline(ctx context.Context) (bool, error) {
+	client, err := compute.NewInstancesRESTClient(ctx)
+	if err != nil {
+		return false, err
 	}
-	instance, err := c.client.Get(c.context, req)
+	defer client.Close()
+
+	req := &computepb.GetInstanceRequest{
+		Project:  c.project,
+		Instance: c.instance,
+		Zone:     c.zone,
+	}
+	instance, err := client.Get(ctx, req)
 	if err != nil {
 		return false, err
 	}
 	return *instance.Status == "RUNNING", nil
-}
-
-func (c AdminConsole) Close() {
-	c.Close()
 }

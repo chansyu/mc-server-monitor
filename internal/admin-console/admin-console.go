@@ -1,9 +1,8 @@
 package admin_console
 
-type AdminConsoleInterface interface {
+type AdminConsole interface {
 	Start() error
 	Restart() error
 	Stop() error
 	IsOnline() (bool, error)
-	Close()
 }
