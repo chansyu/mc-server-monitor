@@ -8,6 +8,7 @@ import (
 	"time"
 
 	console "github.com/itzsBananas/mc-server-monitor/internal/console"
+	"github.com/itzsBananas/mc-server-monitor/internal/serverStarter"
 )
 
 type application struct {
@@ -15,6 +16,7 @@ type application struct {
 	infoLog       *log.Logger
 	remoteConsole console.ConsoleInterface
 	templateCache map[string]*template.Template
+	serverStarter serverStarter.ClientInterface
 }
 
 func main() {
@@ -39,11 +41,17 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	starter, err := serverStarter.DockerOpen("mc-server")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		remoteConsole: con,
 		templateCache: templateCache,
+		serverStarter: starter,
 	}
 
 	srv := &http.Server{
