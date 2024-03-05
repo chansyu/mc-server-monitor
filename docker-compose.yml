@@ -28,6 +28,7 @@ services:
             SERVER_ADDRESS: ${SERVER_ADDRESS}
         volumes:
             - ./:/app/
+            - /var/run/docker.sock:/var/run/docker.sock # NOTE: requires docker daemon to be located in /var/run/docker.sock; linux tested only
 networks:
     mc-server-backend:
         driver: bridge
