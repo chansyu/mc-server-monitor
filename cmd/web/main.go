@@ -7,16 +7,16 @@ import (
 	"os"
 	"time"
 
+	admin_console "github.com/itzsBananas/mc-server-monitor/internal/admin-console"
 	console "github.com/itzsBananas/mc-server-monitor/internal/console"
-	"github.com/itzsBananas/mc-server-monitor/internal/serverStarter"
 )
 
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
-	remoteConsole console.ConsoleInterface
+	rconConsole   console.ConsoleInterface
 	templateCache map[string]*template.Template
-	serverStarter serverStarter.ClientInterface
+	adminConsole  admin_console.AdminConsole
 }
 
 func main() {
@@ -41,17 +41,18 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
-	starter, err := serverStarter.DockerOpen("mc-server")
+	adminConsole, err := admin_console.LocalAdminConsoleOpen("mc-server")
 	if err != nil {
 		errorLog.Fatal(err)
 	}
+	defer adminConsole.Close()
 
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
-		remoteConsole: con,
+		rconConsole:   con,
 		templateCache: templateCache,
-		serverStarter: starter,
+		adminConsole:  adminConsole,
 	}
 
 	srv := &http.Server{

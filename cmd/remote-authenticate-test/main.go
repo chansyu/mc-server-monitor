@@ -10,7 +10,7 @@ import (
 func main() {
 	ctx := context.Background()
 
-	console, err := admin_console.Open("minecraft-626", "minecraft", "us-west2-a")
+	console, err := admin_console.GCPAdminConsoleOpen("minecraft-626", "minecraft", "us-west2-a")
 	if err != nil {
 		log.Fatal(err)
 	}

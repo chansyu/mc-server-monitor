@@ -1,8 +1,11 @@
 package admin_console
 
+import "context"
+
 type AdminConsole interface {
-	Start() error
-	Restart() error
-	Stop() error
-	IsOnline() (bool, error)
+	Start(context.Context) error
+	Restart(context.Context) error
+	Stop(context.Context) error
+	IsOnline(context.Context) (bool, error)
+	Close() error
 }

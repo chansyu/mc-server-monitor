@@ -14,7 +14,7 @@ type GCPAdminConsole struct {
 	zone     string
 }
 
-func Open(project, instance, zone string) (*GCPAdminConsole, error) {
+func GCPAdminConsoleOpen(project, instance, zone string) (*GCPAdminConsole, error) {
 	return &GCPAdminConsole{
 		project, instance, zone,
 	}, nil
@@ -109,4 +109,8 @@ func (c GCPAdminConsole) IsOnline(ctx context.Context) (bool, error) {
 		return false, err
 	}
 	return *instance.Status == "RUNNING", nil
+}
+
+func (c GCPAdminConsole) Close() error {
+	return nil
 }

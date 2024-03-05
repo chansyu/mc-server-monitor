@@ -15,19 +15,19 @@ type ConsoleInterface interface {
 	Message(user string, msg string) (string, error)
 }
 
-type Console struct {
+type RCONConsole struct {
 	con     *rcon.Client
 	timeout time.Duration
 }
 
-func Open(port string, password string, timeout time.Duration) *Console {
-	return &Console{
+func Open(port string, password string, timeout time.Duration) *RCONConsole {
+	return &RCONConsole{
 		rcon.NewClient(port, password),
 		timeout,
 	}
 }
 
-func (c *Console) sendCommand(command string) (string, error) {
+func (c *RCONConsole) sendCommand(command string) (string, error) {
 	success := make(chan string, 1)
 	fail := make(chan error, 1)
 
@@ -51,7 +51,7 @@ func (c *Console) sendCommand(command string) (string, error) {
 }
 
 // "There are x users: \nBob, April\n" // what if no users
-func (c *Console) Users() ([]string, error) {
+func (c *RCONConsole) Users() ([]string, error) {
 	resp, err := c.sendCommand("list")
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (c *Console) Users() ([]string, error) {
 }
 
 // "Seed: [1871644822592853811]"
-func (c *Console) Seed() (string, error) {
+func (c *RCONConsole) Seed() (string, error) {
 	resp, err := c.sendCommand("seed")
 	if err != nil {
 		return "", err
@@ -80,7 +80,7 @@ func (c *Console) Seed() (string, error) {
 	return resp[7 : len(resp)-1], err
 }
 
-func (c *Console) Broadcast(msg string) (string, error) {
+func (c *RCONConsole) Broadcast(msg string) (string, error) {
 	command := fmt.Sprintf("/say %s", msg)
 	resp, err := c.sendCommand(command)
 	if err != nil {
@@ -89,7 +89,7 @@ func (c *Console) Broadcast(msg string) (string, error) {
 	return resp, nil
 }
 
-func (c *Console) Message(user string, msg string) (string, error) {
+func (c *RCONConsole) Message(user string, msg string) (string, error) {
 	command := fmt.Sprintf("/msg %s %s", user, msg)
 	resp, err := c.sendCommand(command)
 	if err != nil {
