@@ -41,7 +41,7 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
-	adminConsole, err := admin_console.LocalAdminConsoleOpen("mc-server")
+	adminConsole, err := getAdminConsole()
 	if err != nil {
 		errorLog.Fatal(err)
 	}
@@ -72,4 +72,26 @@ func getEnv(key string, defaultVal string) string {
 	}
 
 	return defaultVal
+}
+
+func getAdminConsole() (admin_console.AdminConsole, error) {
+	mode := getEnv("MODE", "production")
+
+	var adminConsole admin_console.AdminConsole
+	var err error
+	if mode == "production" {
+		gcpProject := getEnv("GCP_PROJECT", "PROJECT_NAME")
+		gcpZone := getEnv("GCP_ZONE", "ZONE_NAME")
+		gcpInstance := getEnv("GCP_INSTANCE", "INSTANCE_NAME")
+
+		adminConsole, err = admin_console.GCPAdminConsoleOpen(gcpProject, gcpInstance, gcpZone)
+	} else {
+		localContainerId := getEnv("LOCAL_CONTAINER_ID", "mc-server")
+		adminConsole, err = admin_console.LocalAdminConsoleOpen(localContainerId)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return adminConsole, nil
 }
