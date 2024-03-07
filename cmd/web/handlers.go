@@ -14,33 +14,43 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-	output, err := app.rconConsole.Users()
-	var users []string
-	if err != nil && len(output.Message) > 0 {
-		users = strings.Split(output.Message, ",")
+	data := &templateData{}
+
+	users, err := app.rconConsole.Users()
+	if err == nil {
+		data.Users = users
 	}
 
-	data := &templateData{Users: users}
 	app.renderPage(w, http.StatusOK, "home.tmpl.html", data)
 }
 
 func (app *application) seed(w http.ResponseWriter, r *http.Request) {
-	output, err := app.rconConsole.Seed()
+	seed, err := app.rconConsole.Seed()
+	response := models.NewResponse("Seed", nil)
+
 	if err != nil {
 		app.serverError(w, err)
+		response.ConsoleDisconnect()
+	} else {
+		response.ConsoleSuccess(seed)
 	}
 
-	data := &templateData{Response: *output}
+	data := &templateData{Response: *response}
 	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) users(w http.ResponseWriter, r *http.Request) {
-	output, err := app.rconConsole.Users()
+	users, err := app.rconConsole.Users()
+	response := models.NewResponse("Users", nil)
+
 	if err != nil {
 		app.serverError(w, err)
+		response.ConsoleDisconnect()
+	} else {
+		response.ConsoleSuccess(strings.Join(users, ", "))
 	}
 
-	data := &templateData{Response: *output}
+	data := &templateData{Response: *response}
 	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
@@ -56,17 +66,23 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var output *models.Response
+	var response *models.Response
 	if input.User == "All Players" {
-		output, err = app.rconConsole.Broadcast(input.Message)
+		err = app.rconConsole.Broadcast(input.Message)
+		response = models.NewResponse("Broadcast", []string{input.Message})
 	} else {
-		output, err = app.rconConsole.Message(input.User, input.Message)
+		err = app.rconConsole.Message(input.User, input.Message)
+		response = models.NewResponse("Message", []string{input.Message})
 	}
 
 	if err != nil {
 		app.serverError(w, err)
+		response.ConsoleDisconnect()
+	} else {
+		response.ConsoleSuccess("")
 	}
-	data := &templateData{Response: *output}
+
+	data := &templateData{Response: *response}
 	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 
 }
