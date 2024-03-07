@@ -89,40 +89,67 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) start(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Start(r.Context())
+	response := models.NewResponse("Start", nil)
+
 	if err != nil {
 		app.serverError(w, err)
+		response.ConsoleDisconnect()
 	} else {
-		w.Write([]byte("Success!"))
+		response.ConsoleSuccess("")
 	}
+
+	data := &templateData{Response: *response}
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) stop(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Stop(r.Context())
+	response := models.NewResponse("Stop", nil)
+
 	if err != nil {
 		app.serverError(w, err)
+		response.ConsoleDisconnect()
 	} else {
-		w.Write([]byte("Success!"))
+		response.ConsoleSuccess("")
 	}
+
+	data := &templateData{Response: *response}
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) restart(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Restart(r.Context())
+	response := models.NewResponse("Restart", nil)
+
 	if err != nil {
 		app.serverError(w, err)
+		response.ConsoleDisconnect()
 	} else {
-		w.Write([]byte("Success!"))
+		response.ConsoleSuccess("")
 	}
+
+	data := &templateData{Response: *response}
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
-func (app *application) ready(w http.ResponseWriter, r *http.Request) {
+func (app *application) isOnline(w http.ResponseWriter, r *http.Request) {
 	isReady, err := app.adminConsole.IsOnline(r.Context())
+
+	response := models.NewResponse("Status", nil)
+
 	if err != nil {
 		app.serverError(w, err)
-	} else if !isReady {
-		w.Write([]byte("Not Online!"))
+		response.ConsoleDisconnect()
 	} else {
-		w.Write([]byte("Online!"))
+		if isReady {
+			response.ConsoleSuccess("Online!")
+		} else {
+			response.ConsoleSuccess("Not Online!")
+		}
 	}
+
+	data := &templateData{Response: *response}
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) decodePostForm(r *http.Request, dst any) error {

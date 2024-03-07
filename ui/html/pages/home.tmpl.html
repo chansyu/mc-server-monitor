@@ -2,6 +2,22 @@
 {{define "main"}}
 <main hx-boost="true" hx-push-url="false" hx-swap="beforeend">
     <h2>Home</h2>
+    <button hx-get="/start"
+            hx-target="#parent-div">
+    Start
+    </button>
+    <button hx-get="/stop"
+            hx-target="#parent-div">
+    Stop
+    </button>
+    <button hx-get="/restart"
+            hx-target="#parent-div">
+    Restart
+    </button>
+    <button hx-get="/status"
+            hx-target="#parent-div">
+    Status
+    </button>
     <button hx-get="/seed"
             hx-target="#parent-div">
     Seed
