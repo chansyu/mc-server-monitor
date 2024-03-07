@@ -14,7 +14,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-	output, err := app.console.Users()
+	output, err := app.rconConsole.Users()
 	var users []string
 	if err != nil && len(output.Message) > 0 {
 		users = strings.Split(output.Message, ",")
@@ -25,7 +25,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) seed(w http.ResponseWriter, r *http.Request) {
-	output, err := app.console.Seed()
+	output, err := app.rconConsole.Seed()
 	if err != nil {
 		app.serverError(w, err)
 	}
@@ -35,7 +35,7 @@ func (app *application) seed(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) users(w http.ResponseWriter, r *http.Request) {
-	output, err := app.console.Users()
+	output, err := app.rconConsole.Users()
 	if err != nil {
 		app.serverError(w, err)
 	}
@@ -58,9 +58,9 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 
 	var output *console.Response
 	if input.User == "All Players" {
-		output, err = app.console.Broadcast(input.Message)
+		output, err = app.rconConsole.Broadcast(input.Message)
 	} else {
-		output, err = app.console.Message(input.User, input.Message)
+		output, err = app.rconConsole.Message(input.User, input.Message)
 	}
 
 	if err != nil {
@@ -69,6 +69,44 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 	data := &templateData{Response: *output}
 	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 
+}
+
+func (app *application) start(w http.ResponseWriter, r *http.Request) {
+	err := app.adminConsole.Start(r.Context())
+	if err != nil {
+		app.serverError(w, err)
+	} else {
+		w.Write([]byte("Success!"))
+	}
+}
+
+func (app *application) stop(w http.ResponseWriter, r *http.Request) {
+	err := app.adminConsole.Stop(r.Context())
+	if err != nil {
+		app.serverError(w, err)
+	} else {
+		w.Write([]byte("Success!"))
+	}
+}
+
+func (app *application) restart(w http.ResponseWriter, r *http.Request) {
+	err := app.adminConsole.Restart(r.Context())
+	if err != nil {
+		app.serverError(w, err)
+	} else {
+		w.Write([]byte("Success!"))
+	}
+}
+
+func (app *application) ready(w http.ResponseWriter, r *http.Request) {
+	isReady, err := app.adminConsole.IsOnline(r.Context())
+	if err != nil {
+		app.serverError(w, err)
+	} else if !isReady {
+		w.Write([]byte("Not Online!"))
+	} else {
+		w.Write([]byte("Online!"))
+	}
 }
 
 func (app *application) decodePostForm(r *http.Request, dst any) error {

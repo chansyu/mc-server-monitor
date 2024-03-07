@@ -15,19 +15,19 @@ type ConsoleInterface interface {
 	Message(user string, msg string) (*Response, error)
 }
 
-type ConsoleModel struct {
+type RCONConsole struct {
 	con     *rcon.Client
 	timeout time.Duration
 }
 
-func Open(port string, password string, timeout time.Duration) *ConsoleModel {
-	return &ConsoleModel{
+func Open(port string, password string, timeout time.Duration) *RCONConsole {
+	return &RCONConsole{
 		rcon.NewClient(port, password),
 		timeout,
 	}
 }
 
-func (c *ConsoleModel) sendCommand(command string) (string, error) {
+func (c *RCONConsole) sendCommand(command string) (string, error) {
 	success := make(chan string, 1)
 	fail := make(chan error, 1)
 
@@ -51,7 +51,7 @@ func (c *ConsoleModel) sendCommand(command string) (string, error) {
 }
 
 // "There are x users: \nBob, April\n" // what if no users
-func (c *ConsoleModel) Users() (*Response, error) {
+func (c *RCONConsole) Users() (*Response, error) {
 	reply, err := c.sendCommand("/list")
 	resp := newResponse("Users", nil)
 
@@ -70,7 +70,7 @@ func (c *ConsoleModel) Users() (*Response, error) {
 }
 
 // "Seed: [1871644822592853811]"
-func (c *ConsoleModel) Seed() (*Response, error) {
+func (c *RCONConsole) Seed() (*Response, error) {
 	reply, err := c.sendCommand("/seed")
 	resp := newResponse("Seed", nil)
 
@@ -87,7 +87,7 @@ func (c *ConsoleModel) Seed() (*Response, error) {
 	return resp, err
 }
 
-func (c *ConsoleModel) Broadcast(message string) (*Response, error) {
+func (c *RCONConsole) Broadcast(message string) (*Response, error) {
 	command := fmt.Sprintf("/say %s", message)
 	reply, err := c.sendCommand(command)
 	resp := newResponse("Broadcast Message", []string{message})
@@ -100,7 +100,7 @@ func (c *ConsoleModel) Broadcast(message string) (*Response, error) {
 	return resp, nil
 }
 
-func (c *ConsoleModel) Message(user string, message string) (*Response, error) {
+func (c *RCONConsole) Message(user string, message string) (*Response, error) {
 	command := fmt.Sprintf("/msg %s %s", user, message)
 	reply, err := c.sendCommand(command)
 	resp := newResponse("Private Message", []string{user, message})
