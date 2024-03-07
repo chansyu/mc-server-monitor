@@ -34,7 +34,7 @@ func (c *RCONConsole) sendCommand(command string) (string, error) {
 	go func() {
 		reply, err := c.con.Send(command)
 		if err != nil {
-			fail <- err
+			fail <- fmt.Errorf("%w: %v", ErrInternal, err)
 		} else {
 			success <- reply
 		}
@@ -46,7 +46,7 @@ func (c *RCONConsole) sendCommand(command string) (string, error) {
 	case err := <-fail:
 		return "", err
 	case <-time.After(c.timeout):
-		return "", fmt.Errorf("console connection timeout")
+		return "", ErrTimeout
 	}
 }
 

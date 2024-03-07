@@ -21,10 +21,10 @@ func (app *application) routes() http.Handler {
 
 	// container ctrl's (without authentication!!)
 	// TODO: add authentication
-	router.HandlerFunc(http.MethodGet, "/start", app.start)
-	router.HandlerFunc(http.MethodGet, "/restart", app.restart)
-	router.HandlerFunc(http.MethodGet, "/stop", app.stop)
-	router.HandlerFunc(http.MethodGet, "/status", app.isOnline)
+	router.HandlerFunc(http.MethodPost, "/start", app.start)
+	router.HandlerFunc(http.MethodPost, "/restart", app.restart)
+	router.HandlerFunc(http.MethodPost, "/stop", app.stop)
+	router.HandlerFunc(http.MethodPost, "/status", app.status)
 
 	return router
 }

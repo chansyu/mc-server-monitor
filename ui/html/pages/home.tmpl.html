@@ -1,16 +1,16 @@
 {{define "title"}}Home{{end}}
 {{define "main"}}
-<main hx-boost="true" hx-push-url="false" hx-swap="beforeend">
+<main hx-boost="true" hx-push-url="false" hx-swap="beforeend" hx-indicator="#response-spinner">
     <h2>Home</h2>
-    <button hx-get="/start"
+    <button hx-post="/start"
             hx-target="#parent-div">
     Start
     </button>
-    <button hx-get="/stop"
+    <button hx-post="/stop"
             hx-target="#parent-div">
     Stop
     </button>
-    <button hx-get="/restart"
+    <button hx-post="/restart"
             hx-target="#parent-div">
     Restart
     </button>

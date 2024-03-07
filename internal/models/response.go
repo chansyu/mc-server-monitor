@@ -2,6 +2,9 @@ package models
 
 import "time"
 
+const MsgError = "An error occurred"
+const MsgDisconnect = "Request Disconnect"
+
 type Response struct {
 	Success   bool
 	Message   string
@@ -13,15 +16,19 @@ type Response struct {
 func NewResponse(cmd string, arg []string) *Response {
 	return &Response{
 		Success:   false,
-		Message:   "An error occurred",
+		Message:   "",
 		Timestamp: time.Now(),
 		Command:   cmd,
 		Args:      arg,
 	}
 }
 
+func (r *Response) ConsoleError() {
+	r.Message = MsgError
+}
+
 func (r *Response) ConsoleDisconnect() {
-	r.Message = "Request Disconnect"
+	r.Message = MsgDisconnect
 }
 
 func (r *Response) ConsoleSuccess(msg string) {

@@ -28,30 +28,20 @@ func (app *application) seed(w http.ResponseWriter, r *http.Request) {
 	seed, err := app.rconConsole.Seed()
 	response := models.NewResponse("Seed", nil)
 
-	if err != nil {
-		app.serverError(w, err)
-		response.ConsoleDisconnect()
-	} else {
-		response.ConsoleSuccess(seed)
+	if app.responseError(w, response, err) {
+		return
 	}
-
-	data := &templateData{Response: *response}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
+	app.responseSuccess(w, response, seed)
 }
 
 func (app *application) users(w http.ResponseWriter, r *http.Request) {
 	users, err := app.rconConsole.Users()
 	response := models.NewResponse("Users", nil)
 
-	if err != nil {
-		app.serverError(w, err)
-		response.ConsoleDisconnect()
-	} else {
-		response.ConsoleSuccess(strings.Join(users, ", "))
+	if app.responseError(w, response, err) {
+		return
 	}
-
-	data := &templateData{Response: *response}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
+	app.responseSuccess(w, response, strings.Join(users, ", "))
 }
 
 func (app *application) message(w http.ResponseWriter, r *http.Request) {
@@ -75,81 +65,56 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 		response = models.NewResponse("Message", []string{input.Message})
 	}
 
-	if err != nil {
-		app.serverError(w, err)
-		response.ConsoleDisconnect()
-	} else {
-		response.ConsoleSuccess("")
+	if app.responseError(w, response, err) {
+		return
 	}
-
-	data := &templateData{Response: *response}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
-
+	app.responseSuccess(w, response, "Success!")
 }
 
 func (app *application) start(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Start(r.Context())
 	response := models.NewResponse("Start", nil)
 
-	if err != nil {
-		app.serverError(w, err)
-		response.ConsoleDisconnect()
-	} else {
-		response.ConsoleSuccess("")
+	if app.responseError(w, response, err) {
+		return
 	}
-
-	data := &templateData{Response: *response}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
+	app.responseSuccess(w, response, "Success!")
 }
 
 func (app *application) stop(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Stop(r.Context())
 	response := models.NewResponse("Stop", nil)
 
-	if err != nil {
-		app.serverError(w, err)
-		response.ConsoleDisconnect()
-	} else {
-		response.ConsoleSuccess("")
+	if app.responseError(w, response, err) {
+		return
 	}
-
-	data := &templateData{Response: *response}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
+	app.responseSuccess(w, response, "Success!")
 }
 
 func (app *application) restart(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Restart(r.Context())
 	response := models.NewResponse("Restart", nil)
 
-	if err != nil {
-		app.serverError(w, err)
-		response.ConsoleDisconnect()
-	} else {
-		response.ConsoleSuccess("")
+	if app.responseError(w, response, err) {
+		return
 	}
-
-	data := &templateData{Response: *response}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
+	app.responseSuccess(w, response, "Success!")
 }
 
-func (app *application) isOnline(w http.ResponseWriter, r *http.Request) {
+func (app *application) status(w http.ResponseWriter, r *http.Request) {
 	isReady, err := app.adminConsole.IsOnline(r.Context())
 
 	response := models.NewResponse("Status", nil)
 
-	if err != nil {
-		app.serverError(w, err)
-		response.ConsoleDisconnect()
-	} else {
-		if isReady {
-			response.ConsoleSuccess("Online!")
-		} else {
-			response.ConsoleSuccess("Not Online!")
-		}
+	if app.responseError(w, response, err) {
+		return
 	}
 
-	data := &templateData{Response: *response}
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
+	msg := "Not Online!"
+	if isReady {
+		msg = "Online!"
+	}
+	app.responseSuccess(w, response, msg)
 }
 
 func (app *application) decodePostForm(r *http.Request, dst any) error {
