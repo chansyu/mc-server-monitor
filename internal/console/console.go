@@ -5,14 +5,15 @@ import (
 	"strings"
 	"time"
 
+	models "github.com/itzsBananas/mc-server-monitor/internal/models"
 	"github.com/jltobler/go-rcon"
 )
 
 type ConsoleInterface interface {
-	Users() (*Response, error)
-	Seed() (*Response, error)
-	Broadcast(msg string) (*Response, error)
-	Message(user string, msg string) (*Response, error)
+	Users() (*models.Response, error)
+	Seed() (*models.Response, error)
+	Broadcast(msg string) (*models.Response, error)
+	Message(user string, msg string) (*models.Response, error)
 }
 
 type RCONConsole struct {
@@ -51,12 +52,12 @@ func (c *RCONConsole) sendCommand(command string) (string, error) {
 }
 
 // "There are x users: \nBob, April\n" // what if no users
-func (c *RCONConsole) Users() (*Response, error) {
+func (c *RCONConsole) Users() (*models.Response, error) {
 	reply, err := c.sendCommand("/list")
-	resp := newResponse("Users", nil)
+	resp := models.NewResponse("Users", nil)
 
 	if err != nil {
-		resp.consoleDisconnect()
+		resp.ConsoleDisconnect()
 		return resp, err
 	}
 
@@ -65,17 +66,17 @@ func (c *RCONConsole) Users() (*Response, error) {
 		return resp, err
 	}
 	list = strings.ReplaceAll(list, " ", "")
-	resp.consoleSuccess(list)
+	resp.ConsoleSuccess(list)
 	return resp, nil
 }
 
 // "Seed: [1871644822592853811]"
-func (c *RCONConsole) Seed() (*Response, error) {
+func (c *RCONConsole) Seed() (*models.Response, error) {
 	reply, err := c.sendCommand("/seed")
-	resp := newResponse("Seed", nil)
+	resp := models.NewResponse("Seed", nil)
 
 	if err != nil {
-		resp.consoleDisconnect()
+		resp.ConsoleDisconnect()
 		return resp, err
 	}
 
@@ -83,30 +84,30 @@ func (c *RCONConsole) Seed() (*Response, error) {
 		return resp, fmt.Errorf("recieved malformed output from seed command: \"%s\"", reply)
 	}
 
-	resp.consoleSuccess(reply[7 : len(reply)-1])
+	resp.ConsoleSuccess(reply[7 : len(reply)-1])
 	return resp, err
 }
 
-func (c *RCONConsole) Broadcast(message string) (*Response, error) {
+func (c *RCONConsole) Broadcast(message string) (*models.Response, error) {
 	command := fmt.Sprintf("/say %s", message)
 	reply, err := c.sendCommand(command)
-	resp := newResponse("Broadcast Message", []string{message})
+	resp := models.NewResponse("Broadcast Message", []string{message})
 
 	if err != nil {
-		resp.consoleDisconnect()
+		resp.ConsoleDisconnect()
 		return resp, err
 	}
-	resp.consoleSuccess(reply)
+	resp.ConsoleSuccess(reply)
 	return resp, nil
 }
 
-func (c *RCONConsole) Message(user string, message string) (*Response, error) {
+func (c *RCONConsole) Message(user string, message string) (*models.Response, error) {
 	command := fmt.Sprintf("/msg %s %s", user, message)
 	reply, err := c.sendCommand(command)
-	resp := newResponse("Private Message", []string{user, message})
+	resp := models.NewResponse("Private Message", []string{user, message})
 
 	if err != nil {
-		resp.consoleDisconnect()
+		resp.ConsoleDisconnect()
 		return resp, err
 	}
 
@@ -114,7 +115,7 @@ func (c *RCONConsole) Message(user string, message string) (*Response, error) {
 	if resp.Message == "No player was found" {
 		return resp, err
 	}
-	resp.consoleSuccess(reply)
+	resp.ConsoleSuccess(reply)
 	return resp, nil
 }
 

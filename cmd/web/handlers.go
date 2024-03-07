@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-playground/form/v4"
-	console "github.com/itzsBananas/mc-server-monitor/internal/console"
+	models "github.com/itzsBananas/mc-server-monitor/internal/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +56,7 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var output *console.Response
+	var output *models.Response
 	if input.User == "All Players" {
 		output, err = app.rconConsole.Broadcast(input.Message)
 	} else {

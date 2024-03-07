@@ -1,4 +1,4 @@
-package console
+package models
 
 import "time"
 
@@ -10,7 +10,7 @@ type Response struct {
 	Args      []string
 }
 
-func newResponse(cmd string, arg []string) *Response {
+func NewResponse(cmd string, arg []string) *Response {
 	return &Response{
 		Success:   false,
 		Message:   "An error occurred",
@@ -20,11 +20,11 @@ func newResponse(cmd string, arg []string) *Response {
 	}
 }
 
-func (r *Response) consoleDisconnect() {
+func (r *Response) ConsoleDisconnect() {
 	r.Message = "Request Disconnect"
 }
 
-func (r *Response) consoleSuccess(msg string) {
+func (r *Response) ConsoleSuccess(msg string) {
 	r.Message = msg
 	r.Success = true
 }

@@ -6,13 +6,13 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/itzsBananas/mc-server-monitor/internal/console"
+	"github.com/itzsBananas/mc-server-monitor/internal/models"
 	"github.com/itzsBananas/mc-server-monitor/ui"
 )
 
 type templateData struct {
 	Users    []string
-	Response console.Response
+	Response models.Response
 }
 
 func humanDate(t time.Time) string {
