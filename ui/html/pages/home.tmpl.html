@@ -1,44 +1,49 @@
 {{define "title"}}Home{{end}}
 {{define "main"}}
-<main hx-boost="true" hx-push-url="false" hx-swap="beforeend" hx-indicator="#response-spinner">
+<main hx-boost="true" hx-push-url="false" hx-swap="afterbegin" hx-indicator="#response-spinner">
     <h2>Home</h2>
     <button hx-post="/start"
-            hx-target="#parent-div">
+            hx-target="#response-log">
     Start
     </button>
     <button hx-post="/stop"
-            hx-target="#parent-div">
+            hx-target="#response-log">
     Stop
     </button>
     <button hx-post="/restart"
-            hx-target="#parent-div">
+            hx-target="#response-log">
     Restart
     </button>
     <button hx-get="/status"
-            hx-target="#parent-div">
+            hx-target="#response-log">
     Status
     </button>
     <button hx-get="/seed"
-            hx-target="#parent-div">
+            hx-target="#response-log">
     Seed
     </button>
     <button hx-get="/users"
-            hx-target="#parent-div">
+            hx-target="#response-log">
     Users
     </button>
-    <form action="/message" method="post" hx-target="#parent-div">
-        <label for="message">Message</label>
-        <select id="user" name="user">
-            <option value="All Players">All Players</option>
-            {{range .Users}}
-            <option value="{{.}}">{{.}}</option>
-            {{end}}
-        </select>
-        <input id="message" type="text" name="message"/>
-        <input type="submit" value="message"/>
+    <form action="/message" method="post" hx-target="#response-log">
+        <fieldset class="table rows"> 
+            <legend>Message</legend>
+            <p>
+                <label for="user">To:</label>
+                <select id="user" name="user">
+                        <option value="All Players">All Players</option>
+                        {{range .Users}}
+                        <option value="{{.}}">{{.}}</option>
+                        {{end}}
+                </select>
+            </p>
+            <p><label for="message-content">Content</label><input id="message" type="text" name="message"/></p>
+            <input type="submit" value="Message"/>
+        </fieldset>
     </form>
-    <div id="parent-div">
-    </div>
     <img id="response-spinner" class="htmx-indicator" src="static/img/spinner.svg">
+    <div id="response-log">
+    </div>
 </main>
 {{end}}
