@@ -9,7 +9,7 @@ import (
 )
 
 type ConsoleInterface interface {
-	Users() ([]string, error)
+	Players() ([]string, error)
 	Seed() (string, error)
 	Broadcast(msg string) error
 	Message(user string, msg string) error
@@ -51,23 +51,23 @@ func (c *RCONConsole) sendCommand(command string) (string, error) {
 }
 
 // "There are x users: Bob, April\n" // what if no users
-func (c *RCONConsole) Users() ([]string, error) {
+func (c *RCONConsole) Players() ([]string, error) {
 	reply, err := c.sendCommand("/list")
 
 	if err != nil {
 		return nil, err
 	}
 
-	users, err := stripPrefix(reply)
+	players, err := stripPrefix(reply)
 	if err != nil {
 		return nil, err
 	}
 
-	users = strings.Join(strings.Fields(users), "")
-	if len(users) == 0 {
+	players = strings.Join(strings.Fields(players), "")
+	if len(players) == 0 {
 		return nil, nil
 	}
-	list := strings.Split(users, ",")
+	list := strings.Split(players, ",")
 	return list, nil
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 type templateData struct {
-	Users    []string
+	Players  []string
 	Response models.Response
 }
 

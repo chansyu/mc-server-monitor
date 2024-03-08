@@ -16,12 +16,16 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 	data := &templateData{}
 
-	users, err := app.rconConsole.Users()
+	players, err := app.rconConsole.Players()
 	if err == nil {
-		data.Users = users
+		data.Players = players
 	}
 
 	app.renderPage(w, http.StatusOK, "home.tmpl.html", data)
+}
+
+func (app *application) userLoginGet(w http.ResponseWriter, r *http.Request) {
+	app.renderPage(w, http.StatusOK, "login.tmpl.html", nil)
 }
 
 func (app *application) seed(w http.ResponseWriter, r *http.Request) {
@@ -34,14 +38,14 @@ func (app *application) seed(w http.ResponseWriter, r *http.Request) {
 	app.responseSuccess(w, response, seed)
 }
 
-func (app *application) users(w http.ResponseWriter, r *http.Request) {
-	users, err := app.rconConsole.Users()
-	response := models.NewResponse("Users", nil)
+func (app *application) players(w http.ResponseWriter, r *http.Request) {
+	players, err := app.rconConsole.Players()
+	response := models.NewResponse("Players", nil)
 
 	if app.responseError(w, response, err) {
 		return
 	}
-	app.responseSuccess(w, response, strings.Join(users, ", "))
+	app.responseSuccess(w, response, strings.Join(players, ", "))
 }
 
 func (app *application) message(w http.ResponseWriter, r *http.Request) {

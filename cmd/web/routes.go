@@ -16,8 +16,10 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodGet, "/", app.home)
 	router.HandlerFunc(http.MethodGet, "/seed", app.seed)
-	router.HandlerFunc(http.MethodGet, "/users", app.users)
+	router.HandlerFunc(http.MethodGet, "/users", app.players)
 	router.HandlerFunc(http.MethodPost, "/message", app.message)
+
+	router.HandlerFunc(http.MethodGet, "/user/login", app.userLoginGet)
 
 	// container ctrl's (without authentication!!)
 	// TODO: add authentication

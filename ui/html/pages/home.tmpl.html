@@ -22,9 +22,9 @@
             hx-target="#response-log">
     Seed
     </button>
-    <button hx-get="/users"
+    <button hx-get="/players"
             hx-target="#response-log">
-    Users
+    Players
     </button>
     <form action="/message" method="post" hx-target="#response-log">
         <fieldset class="table rows"> 
@@ -33,7 +33,7 @@
                 <label for="user">To:</label>
                 <select id="user" name="user">
                         <option value="All Players">All Players</option>
-                        {{range .Users}}
+                        {{range .Players}}
                         <option value="{{.}}">{{.}}</option>
                         {{end}}
                 </select>
