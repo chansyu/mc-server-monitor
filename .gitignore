@@ -62,3 +62,4 @@ terraform.rc
 # Ignore tmp file created by cosmtrek/air image
 /tmp
 /data
+internal/models/testdata/test.db
