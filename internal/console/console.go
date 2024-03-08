@@ -50,7 +50,7 @@ func (c *RCONConsole) sendCommand(command string) (string, error) {
 	}
 }
 
-// "There are x users: \nBob, April\n" // what if no users
+// "There are x users: Bob, April\n" // what if no users
 func (c *RCONConsole) Users() ([]string, error) {
 	reply, err := c.sendCommand("/list")
 
@@ -63,8 +63,11 @@ func (c *RCONConsole) Users() ([]string, error) {
 		return nil, err
 	}
 
-	users = strings.ReplaceAll(users, " ", "")
-	list := strings.Split(users, " ")
+	users = strings.Join(strings.Fields(users), "")
+	if len(users) == 0 {
+		return nil, nil
+	}
+	list := strings.Split(users, ",")
 	return list, nil
 }
 
