@@ -24,7 +24,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/start", app.start)
 	router.HandlerFunc(http.MethodPost, "/restart", app.restart)
 	router.HandlerFunc(http.MethodPost, "/stop", app.stop)
-	router.HandlerFunc(http.MethodPost, "/status", app.status)
+	router.HandlerFunc(http.MethodGet, "/status", app.status)
 
-	return router
+	return app.recoverPanic(app.logRequest(secureHeaders(router)))
 }
