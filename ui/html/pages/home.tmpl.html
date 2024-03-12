@@ -1,49 +1,54 @@
 {{define "title"}}Home{{end}}
 {{define "main"}}
-<main hx-boost="true" hx-push-url="false" hx-swap="afterbegin" hx-indicator="#response-spinner">
+<main hx-boost="true" hx-push-url="false" hx-swap="afterbegin" hx-indicator="#response-spinner" class="unscrollable-parent">
     <h2>Home</h2>
-    <button hx-post="/start"
+    <section>
+        <h3>Actions</h3>
+        <button hx-post="/start"
             hx-target="#response-log">
-    Start
-    </button>
-    <button hx-post="/stop"
-            hx-target="#response-log">
-    Stop
-    </button>
-    <button hx-post="/restart"
-            hx-target="#response-log">
-    Restart
-    </button>
-    <button hx-get="/status"
-            hx-target="#response-log">
-    Status
-    </button>
-    <button hx-get="/seed"
-            hx-target="#response-log">
-    Seed
-    </button>
-    <button hx-get="/players"
-            hx-target="#response-log">
-    Players
-    </button>
-    <form action="/message" method="post" hx-target="#response-log">
-        <fieldset class="table rows"> 
-            <legend>Message</legend>
-            <p>
-                <label for="user">To:</label>
-                <select id="user" name="user">
-                        <option value="All Players">All Players</option>
-                        {{range .Players}}
-                        <option value="{{.}}">{{.}}</option>
-                        {{end}}
-                </select>
-            </p>
-            <p><label for="message-content">Content</label><input id="message" type="text" name="message"/></p>
-            <input type="submit" value="Message"/>
-        </fieldset>
-    </form>
-    <img id="response-spinner" class="htmx-indicator" src="static/img/spinner.svg">
-    <div id="response-log">
-    </div>
+        Start
+        </button>
+        <button hx-post="/stop"
+                hx-target="#response-log">
+        Stop
+        </button>
+        <button hx-post="/restart"
+                hx-target="#response-log">
+        Restart
+        </button>
+        <button hx-get="/status"
+                hx-target="#response-log">
+        Status
+        </button>
+        <button hx-get="/seed"
+                hx-target="#response-log">
+        Seed
+        </button>
+        <button hx-get="/players"
+                hx-target="#response-log">
+        Players
+        </button>
+        <form action="/message" method="post" hx-target="#response-log">
+            <fieldset class="table rows"> 
+                <legend>Message</legend>
+                <p>
+                    <label for="user">To:</label>
+                    <select id="user" name="user">
+                            <option value="All Players">All Players</option>
+                            {{range .Players}}
+                            <option value="{{.}}">{{.}}</option>
+                            {{end}}
+                    </select>
+                </p>
+                <p><label for="message-content">Content</label><input id="message" type="text" name="message"/></p>
+                <input type="submit" value="Message"/>
+            </fieldset>
+        </form>
+        <img id="response-spinner" class="htmx-indicator" src="static/img/spinner.svg">
+    </section>
+    <section class="unscrollable-parent">
+        <h3>Responses</h3>
+        <div id="response-log" class="scrollable-child"></div>
+    </section>
 </main>
 {{end}}
