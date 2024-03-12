@@ -1,24 +1,30 @@
 package main
 
 import (
+	"database/sql"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/sqlite3store"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	admin_console "github.com/itzsBananas/mc-server-monitor/internal/admin-console"
 	console "github.com/itzsBananas/mc-server-monitor/internal/console"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type application struct {
-	errorLog      *log.Logger
-	infoLog       *log.Logger
-	templateCache map[string]*template.Template
-	formDecoder   *form.Decoder
-	rconConsole   console.ConsoleInterface
-	adminConsole  admin_console.AdminConsole
+	errorLog       *log.Logger
+	infoLog        *log.Logger
+	templateCache  map[string]*template.Template
+	formDecoder    *form.Decoder
+	rconConsole    console.ConsoleInterface
+	adminConsole   admin_console.AdminConsole
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -26,6 +32,7 @@ func main() {
 	rconAddress := getEnv("RCON_ADDRESS", "rcon://127.0.0.1:25575")
 	rconPassword := getEnv("RCON_PASSWORD", "password")
 	rconTimeoutString := getEnv("RCON_TIMEOUT", "5s")
+	dsn := getEnv("DSN", "file:./mc-server-monitor.db?_timeout=5000")
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 
@@ -45,6 +52,16 @@ func main() {
 
 	formDecoder := form.NewDecoder()
 
+	db, err := openDB(dsn)
+	if err != nil {
+		errorLog.Fatalf(dsn)
+	}
+	defer db.Close()
+
+	sessionManager := scs.New()
+	sessionManager.Cookie.SameSite = http.SameSiteStrictMode
+	sessionManager.Store = sqlite3store.New(db)
+
 	adminConsole, err := getAdminConsole()
 	if err != nil {
 		errorLog.Fatal(err)
@@ -52,12 +69,13 @@ func main() {
 	defer adminConsole.Close()
 
 	app := &application{
-		errorLog:      errorLog,
-		infoLog:       infoLog,
-		rconConsole:   rcon,
-		templateCache: templateCache,
-		adminConsole:  adminConsole,
-		formDecoder:   formDecoder,
+		errorLog:       errorLog,
+		infoLog:        infoLog,
+		rconConsole:    rcon,
+		templateCache:  templateCache,
+		adminConsole:   adminConsole,
+		formDecoder:    formDecoder,
+		sessionManager: sessionManager,
 	}
 
 	srv := &http.Server{
@@ -102,4 +120,15 @@ func getAdminConsole() (admin_console.AdminConsole, error) {
 		return nil, err
 	}
 	return adminConsole, nil
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", dsn)
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
 }

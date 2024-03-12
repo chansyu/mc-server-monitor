@@ -32,20 +32,20 @@ func (app *application) seed(w http.ResponseWriter, r *http.Request) {
 	seed, err := app.rconConsole.Seed()
 	response := models.NewResponse("Seed", nil)
 
-	if app.responseError(w, response, err) {
+	if app.responseError(w, r, response, err) {
 		return
 	}
-	app.responseSuccess(w, response, seed)
+	app.responseSuccess(w, r, response, seed)
 }
 
 func (app *application) players(w http.ResponseWriter, r *http.Request) {
 	players, err := app.rconConsole.Players()
 	response := models.NewResponse("Players", nil)
 
-	if app.responseError(w, response, err) {
+	if app.responseError(w, r, response, err) {
 		return
 	}
-	app.responseSuccess(w, response, strings.Join(players, ", "))
+	app.responseSuccess(w, r, response, strings.Join(players, ", "))
 }
 
 func (app *application) message(w http.ResponseWriter, r *http.Request) {
@@ -69,40 +69,40 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 		response = models.NewResponse("Message", []string{input.Message})
 	}
 
-	if app.responseError(w, response, err) {
+	if app.responseError(w, r, response, err) {
 		return
 	}
-	app.responseSuccess(w, response, "Success!")
+	app.responseSuccess(w, r, response, "Success!")
 }
 
 func (app *application) start(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Start(r.Context())
 	response := models.NewResponse("Start", nil)
 
-	if app.responseError(w, response, err) {
+	if app.responseError(w, r, response, err) {
 		return
 	}
-	app.responseSuccess(w, response, "Success!")
+	app.responseSuccess(w, r, response, "Success!")
 }
 
 func (app *application) stop(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Stop(r.Context())
 	response := models.NewResponse("Stop", nil)
 
-	if app.responseError(w, response, err) {
+	if app.responseError(w, r, response, err) {
 		return
 	}
-	app.responseSuccess(w, response, "Success!")
+	app.responseSuccess(w, r, response, "Success!")
 }
 
 func (app *application) restart(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Restart(r.Context())
 	response := models.NewResponse("Restart", nil)
 
-	if app.responseError(w, response, err) {
+	if app.responseError(w, r, response, err) {
 		return
 	}
-	app.responseSuccess(w, response, "Success!")
+	app.responseSuccess(w, r, response, "Success!")
 }
 
 func (app *application) status(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +110,7 @@ func (app *application) status(w http.ResponseWriter, r *http.Request) {
 
 	response := models.NewResponse("Status", nil)
 
-	if app.responseError(w, response, err) {
+	if app.responseError(w, r, response, err) {
 		return
 	}
 
@@ -118,7 +118,7 @@ func (app *application) status(w http.ResponseWriter, r *http.Request) {
 	if isReady {
 		msg = "Online!"
 	}
-	app.responseSuccess(w, response, msg)
+	app.responseSuccess(w, r, response, msg)
 }
 
 func (app *application) decodePostForm(r *http.Request, dst any) error {

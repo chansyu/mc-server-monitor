@@ -3,16 +3,19 @@ package main
 import (
 	"html/template"
 	"io/fs"
+	"net/http"
 	"path/filepath"
 	"time"
 
 	"github.com/itzsBananas/mc-server-monitor/internal/models"
 	"github.com/itzsBananas/mc-server-monitor/ui"
+	"github.com/justinas/nosurf"
 )
 
 type templateData struct {
-	Players  []string
-	Response models.Response
+	Players   []string
+	Response  models.Response
+	CSRFToken string
 }
 
 func humanDate(t time.Time) string {
@@ -64,4 +67,10 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	return cache, nil
+}
+
+func (app *application) newTemplateData(r *http.Request) *templateData {
+	return &templateData{
+		CSRFToken: nosurf.Token(r),
+	}
 }

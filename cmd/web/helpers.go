@@ -73,7 +73,7 @@ func baseName(fileName string) string {
 	return f[0]
 }
 
-func (app *application) responseError(w http.ResponseWriter, response *models.Response, err error) bool {
+func (app *application) responseError(w http.ResponseWriter, r *http.Request, response *models.Response, err error) bool {
 	if err == nil {
 		return false
 	}
@@ -84,14 +84,16 @@ func (app *application) responseError(w http.ResponseWriter, response *models.Re
 		response.ConsoleError()
 	}
 
-	data := &templateData{Response: *response}
+	data := app.newTemplateData(r)
+	data.Response = *response
 	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 
 	return true
 }
 
-func (app *application) responseSuccess(w http.ResponseWriter, response *models.Response, msg string) {
+func (app *application) responseSuccess(w http.ResponseWriter, r *http.Request, response *models.Response, msg string) {
 	response.ConsoleSuccess(msg)
-	data := &templateData{Response: *response}
+	data := app.newTemplateData(r)
+	data.Response = *response
 	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
