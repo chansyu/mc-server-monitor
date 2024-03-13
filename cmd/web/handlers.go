@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-playground/form/v4"
 	models "github.com/itzsBananas/mc-server-monitor/internal/models"
+	validator "github.com/itzsBananas/mc-server-monitor/internal/validator"
 )
 
 const MsgSuccessDefault = "Succeeded!"
@@ -26,8 +27,58 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.renderPage(w, http.StatusOK, "home.tmpl.html", data)
 }
 
-func (app *application) userLoginGet(w http.ResponseWriter, r *http.Request) {
-	app.renderPage(w, http.StatusOK, "login.tmpl.html", nil)
+type userLoginForm struct {
+	Username            string `form:"username"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
+func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	data.Form = userLoginForm{}
+	app.renderPage(w, http.StatusOK, "login.tmpl.html", data)
+}
+
+func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
+	var form userLoginForm
+	err := app.decodePostForm(r, &form)
+
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form.CheckField(validator.NotBlank(form.Username), "Username", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Password), "Password", "This field cannot be blank")
+
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.infoLog.Println(data.Form)
+		app.renderPage(w, http.StatusUnprocessableEntity, "login.tmpl.html", data)
+		return
+	}
+
+	id, err := app.users.Authenticate(form.Username, form.Password)
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			form.AddNonFieldError("Email or password is incorrect")
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.renderPage(w, http.StatusUnprocessableEntity, "login.tmpl.html", data)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	err = app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *application) seed(w http.ResponseWriter, r *http.Request) {

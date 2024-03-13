@@ -2,15 +2,25 @@
 {{define "main"}}
 <main>
     <form action='/user/login' method='POST' novalidate>
+        <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+        {{range .Form.NonFieldErrors}}
+            <div class='error'>{{.}}</div>
+        {{end}}
         <fieldset class="table rows">
             <legend>Login</legend> 
             <div>
                 <label>Email:</label>
-                <input type='text' name='username'>
+                <input type='text' name='username' value='{{.Form.Username}}'>
+                {{with .Form.FieldErrors.Username}}
+                    <label class='error container'>{{.}}</label>
+                {{end}}
             </div>
             <div>
                 <label>Password:</label>
-                <input type='password' name='password'>
+                <input type='password' name='password' value='{{.Form.Password}}'>
+                {{with .Form.FieldErrors.Password}}
+                    <label class='error container'>{{.}}</label>
+                {{end}}
             </div>
             <div>
                 <input type='submit' value='Login'>

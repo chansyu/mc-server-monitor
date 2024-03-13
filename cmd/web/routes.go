@@ -23,7 +23,8 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/users", basicMiddleWare(app.players))
 	router.Handler(http.MethodPost, "/message", basicMiddleWare(app.message))
 
-	router.HandlerFunc(http.MethodGet, "/user/login", app.userLoginGet)
+	router.Handler(http.MethodGet, "/user/login", basicMiddleWare(app.userLogin))
+	router.Handler(http.MethodPost, "/user/login", basicMiddleWare(app.userLoginPost))
 
 	// container ctrl's (without authentication!!)
 	// TODO: add authentication

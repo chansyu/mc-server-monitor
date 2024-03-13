@@ -15,6 +15,7 @@ import (
 type templateData struct {
 	Players   []string
 	Response  models.Response
+	Form      userLoginForm
 	CSRFToken string
 }
 

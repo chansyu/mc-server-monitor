@@ -13,6 +13,7 @@ import (
 	"github.com/go-playground/form/v4"
 	admin_console "github.com/itzsBananas/mc-server-monitor/internal/admin-console"
 	console "github.com/itzsBananas/mc-server-monitor/internal/console"
+	"github.com/itzsBananas/mc-server-monitor/internal/models"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -25,6 +26,7 @@ type application struct {
 	rconConsole    console.ConsoleInterface
 	adminConsole   admin_console.AdminConsole
 	sessionManager *scs.SessionManager
+	users          *models.UserModel
 }
 
 func main() {
@@ -59,8 +61,10 @@ func main() {
 	defer db.Close()
 
 	sessionManager := scs.New()
-	sessionManager.Cookie.SameSite = http.SameSiteStrictMode
+	sessionManager.Cookie.SameSite = http.SameSiteLaxMode
 	sessionManager.Store = sqlite3store.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true
 
 	adminConsole, err := getAdminConsole()
 	if err != nil {
@@ -76,6 +80,7 @@ func main() {
 		adminConsole:   adminConsole,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
+		users:          &models.UserModel{DB: db},
 	}
 
 	srv := &http.Server{
