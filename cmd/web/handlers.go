@@ -9,6 +9,8 @@ import (
 	models "github.com/itzsBananas/mc-server-monitor/internal/models"
 )
 
+const MsgSuccessDefault = "Succeeded!"
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		app.notFound(w)
@@ -32,20 +34,30 @@ func (app *application) seed(w http.ResponseWriter, r *http.Request) {
 	seed, err := app.rconConsole.Seed()
 	response := models.NewResponse("Seed", nil)
 
-	if app.responseError(w, r, response, err) {
-		return
+	if err != nil {
+		app.consoleError(err, response)
+	} else {
+		response.Succeed(seed)
 	}
-	app.responseSuccess(w, r, response, seed)
+
+	data := app.newTemplateData(r)
+	data.Response = response
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) players(w http.ResponseWriter, r *http.Request) {
 	players, err := app.rconConsole.Players()
 	response := models.NewResponse("Players", nil)
 
-	if app.responseError(w, r, response, err) {
-		return
+	if err != nil {
+		app.consoleError(err, response)
+	} else {
+		response.Succeed(strings.Join(players, ", "))
 	}
-	app.responseSuccess(w, r, response, strings.Join(players, ", "))
+
+	data := app.newTemplateData(r)
+	data.Response = response
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) message(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +72,7 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response *models.Response
+	var response models.Response
 	if input.User == "All Players" {
 		err = app.rconConsole.Broadcast(input.Message)
 		response = models.NewResponse("Broadcast", []string{input.Message})
@@ -69,40 +81,60 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 		response = models.NewResponse("Message", []string{input.Message})
 	}
 
-	if app.responseError(w, r, response, err) {
-		return
+	if err != nil {
+		app.consoleError(err, response)
+	} else {
+		response.Succeed(MsgSuccessDefault)
 	}
-	app.responseSuccess(w, r, response, "Success!")
+
+	data := app.newTemplateData(r)
+	data.Response = response
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) start(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Start(r.Context())
 	response := models.NewResponse("Start", nil)
 
-	if app.responseError(w, r, response, err) {
-		return
+	if err != nil {
+		app.consoleError(err, response)
+	} else {
+		response.Succeed(MsgSuccessDefault)
 	}
-	app.responseSuccess(w, r, response, "Success!")
+
+	data := app.newTemplateData(r)
+	data.Response = response
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) stop(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Stop(r.Context())
 	response := models.NewResponse("Stop", nil)
 
-	if app.responseError(w, r, response, err) {
-		return
+	if err != nil {
+		app.consoleError(err, response)
+	} else {
+		response.Succeed("Succeeded")
 	}
-	app.responseSuccess(w, r, response, "Success!")
+
+	data := app.newTemplateData(r)
+	data.Response = response
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) restart(w http.ResponseWriter, r *http.Request) {
 	err := app.adminConsole.Restart(r.Context())
 	response := models.NewResponse("Restart", nil)
 
-	if app.responseError(w, r, response, err) {
-		return
+	if err != nil {
+		app.consoleError(err, response)
+	} else {
+		response.Succeed(MsgSuccessDefault)
 	}
-	app.responseSuccess(w, r, response, "Success!")
+
+	data := app.newTemplateData(r)
+	data.Response = response
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) status(w http.ResponseWriter, r *http.Request) {
@@ -110,15 +142,19 @@ func (app *application) status(w http.ResponseWriter, r *http.Request) {
 
 	response := models.NewResponse("Status", nil)
 
-	if app.responseError(w, r, response, err) {
-		return
+	if err != nil {
+		app.consoleError(err, response)
+	} else {
+		msg := "Not Online!"
+		if isReady {
+			msg = "Online!"
+		}
+		response.Succeed(msg)
 	}
 
-	msg := "Not Online!"
-	if isReady {
-		msg = "Online!"
-	}
-	app.responseSuccess(w, r, response, msg)
+	data := app.newTemplateData(r)
+	data.Response = response
+	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
 }
 
 func (app *application) decodePostForm(r *http.Request, dst any) error {

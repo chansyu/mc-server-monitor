@@ -7,7 +7,6 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/itzsBananas/mc-server-monitor/internal/console"
 	"github.com/itzsBananas/mc-server-monitor/internal/models"
 )
 
@@ -73,27 +72,9 @@ func baseName(fileName string) string {
 	return f[0]
 }
 
-func (app *application) responseError(w http.ResponseWriter, r *http.Request, response *models.Response, err error) bool {
-	if err == nil {
-		return false
-	}
+func (app *application) consoleError(err error, response models.Response) {
+	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+	app.errorLog.Output(2, trace)
 
-	if err != console.ErrTimeout {
-		response.ConsoleDisconnect()
-	} else {
-		response.ConsoleError()
-	}
-
-	data := app.newTemplateData(r)
-	data.Response = *response
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
-
-	return true
-}
-
-func (app *application) responseSuccess(w http.ResponseWriter, r *http.Request, response *models.Response, msg string) {
-	response.ConsoleSuccess(msg)
-	data := app.newTemplateData(r)
-	data.Response = *response
-	app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
+	response.Error()
 }
