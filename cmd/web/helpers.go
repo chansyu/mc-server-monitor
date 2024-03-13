@@ -7,7 +7,7 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/itzsBananas/mc-server-monitor/internal/models"
+	models "github.com/itzsBananas/mc-server-monitor/internal/models"
 )
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
@@ -15,6 +15,13 @@ func (app *application) serverError(w http.ResponseWriter, err error) {
 	app.errorLog.Output(2, trace)
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+}
+
+func (app *application) consoleError(err error, response models.Response) {
+	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+	app.errorLog.Output(2, trace)
+
+	response.Error()
 }
 
 func (app *application) clientError(w http.ResponseWriter, status int) {
@@ -70,11 +77,4 @@ func (app *application) renderPartial(w http.ResponseWriter, status int, fileNam
 func baseName(fileName string) string {
 	f := strings.Split(fileName, ".")
 	return f[0]
-}
-
-func (app *application) consoleError(err error, response models.Response) {
-	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	app.errorLog.Output(2, trace)
-
-	response.Error()
 }
