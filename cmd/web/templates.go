@@ -13,10 +13,11 @@ import (
 )
 
 type templateData struct {
-	Players   []string
-	Response  models.Response
-	Form      userLoginForm
-	CSRFToken string
+	Players         []string
+	Response        models.Response
+	Form            userLoginForm
+	CSRFToken       string
+	IsAuthenticated bool
 }
 
 func humanDate(t time.Time) string {
@@ -72,6 +73,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 
 func (app *application) newTemplateData(r *http.Request) *templateData {
 	return &templateData{
-		CSRFToken: nosurf.Token(r),
+		CSRFToken:       nosurf.Token(r),
+		IsAuthenticated: app.isAuthenticated(r),
 	}
 }

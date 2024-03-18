@@ -5,6 +5,7 @@ import (
 
 	"github.com/itzsBananas/mc-server-monitor/ui"
 	"github.com/julienschmidt/httprouter"
+	"github.com/justinas/alice"
 )
 
 func (app *application) routes() http.Handler {
@@ -14,24 +15,25 @@ func (app *application) routes() http.Handler {
 
 	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
 
-	basicMiddleWare := func(handler func(http.ResponseWriter, *http.Request)) http.Handler {
-		return app.sessionManager.LoadAndSave(noSurf(http.HandlerFunc(handler)))
-	}
+	basicMiddleware := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
-	router.Handler(http.MethodGet, "/", basicMiddleWare(app.home))
-	router.Handler(http.MethodGet, "/seed", basicMiddleWare(app.seed))
-	router.Handler(http.MethodGet, "/users", basicMiddleWare(app.players))
-	router.Handler(http.MethodPost, "/message", basicMiddleWare(app.message))
+	router.Handler(http.MethodGet, "/", basicMiddleware.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/seed", basicMiddleware.ThenFunc(app.seed))
+	router.Handler(http.MethodGet, "/users", basicMiddleware.ThenFunc(app.players))
+	router.Handler(http.MethodPost, "/message", basicMiddleware.ThenFunc(app.message))
 
-	router.Handler(http.MethodGet, "/user/login", basicMiddleWare(app.userLogin))
-	router.Handler(http.MethodPost, "/user/login", basicMiddleWare(app.userLoginPost))
+	router.Handler(http.MethodGet, "/user/login", basicMiddleware.ThenFunc(app.userLogin))
+	router.Handler(http.MethodPost, "/user/login", basicMiddleware.ThenFunc(app.userLoginPost))
 
-	// container ctrl's (without authentication!!)
-	// TODO: add authentication
-	router.Handler(http.MethodPost, "/start", basicMiddleWare(app.start))
-	router.Handler(http.MethodPost, "/restart", basicMiddleWare(app.restart))
-	router.Handler(http.MethodPost, "/stop", basicMiddleWare(app.stop))
-	router.Handler(http.MethodGet, "/status", basicMiddleWare(app.status))
+	router.Handler(http.MethodGet, "/status", basicMiddleware.ThenFunc(app.status))
+
+	protectedMiddleware := basicMiddleware.Append(app.requireAuthentication)
+
+	router.Handler(http.MethodPost, "/user/logout", protectedMiddleware.ThenFunc(app.userLogoutPost))
+
+	router.Handler(http.MethodPost, "/start", protectedMiddleware.ThenFunc(app.start))
+	router.Handler(http.MethodPost, "/restart", protectedMiddleware.ThenFunc(app.restart))
+	router.Handler(http.MethodPost, "/stop", protectedMiddleware.ThenFunc(app.stop))
 
 	return app.recoverPanic(app.logRequest(secureHeaders(router)))
 }

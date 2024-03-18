@@ -63,3 +63,4 @@ terraform.rc
 /tmp
 /data
 internal/models/testdata/test.db
+/.vscode
