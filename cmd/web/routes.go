@@ -19,7 +19,7 @@ func (app *application) routes() http.Handler {
 
 	router.Handler(http.MethodGet, "/", basicMiddleware.ThenFunc(app.home))
 	router.Handler(http.MethodGet, "/seed", basicMiddleware.ThenFunc(app.seed))
-	router.Handler(http.MethodGet, "/users", basicMiddleware.ThenFunc(app.players))
+	router.Handler(http.MethodGet, "/players", basicMiddleware.ThenFunc(app.players))
 	router.Handler(http.MethodPost, "/message", basicMiddleware.ThenFunc(app.message))
 
 	router.Handler(http.MethodGet, "/user/login", basicMiddleware.ThenFunc(app.userLogin))
