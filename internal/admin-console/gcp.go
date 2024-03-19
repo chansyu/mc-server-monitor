@@ -2,7 +2,6 @@ package admin_console
 
 import (
 	"context"
-	"log"
 
 	compute "cloud.google.com/go/compute/apiv1"
 	computepb "cloud.google.com/go/compute/apiv1/computepb"
@@ -58,12 +57,12 @@ func (c GCPAdminConsole) Restart(ctx context.Context) error {
 	}
 	op, err := client.Reset(ctx, req)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }
