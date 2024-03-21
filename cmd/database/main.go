@@ -22,7 +22,7 @@ type myDB struct {
 const MsgYes = "Y"
 
 func main() {
-	dsn := getEnv("DSN", "file:./mc-server-monitor.db?_timeout=5000")
+	dsn := getEnv("DSN", "file:./data/mc-server-monitor.db?_timeout=5000")
 	db, err := openDB(dsn)
 	if err != nil {
 		log.Fatal(err)

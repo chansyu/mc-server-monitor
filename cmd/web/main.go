@@ -34,7 +34,7 @@ func main() {
 	rconAddress := getEnv("RCON_ADDRESS", "rcon://127.0.0.1:25575")
 	rconPassword := getEnv("RCON_PASSWORD", "password")
 	rconTimeoutString := getEnv("RCON_TIMEOUT", "5s")
-	dsn := getEnv("DSN", "file:./mc-server-monitor.db?_timeout=5000")
+	dsn := getEnv("DSN", "file:./data/mc-server-monitor.db?_timeout=5000")
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 
