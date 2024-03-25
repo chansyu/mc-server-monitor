@@ -3,7 +3,7 @@
 
 FROM golang:1.21 AS build-stage
 
-WORKDIR /
+WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
@@ -12,20 +12,17 @@ COPY cmd ./cmd
 COPY internal ./internal
 COPY ui ./ui
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /mc-server-monitor ./cmd/web 
+RUN CGO_ENABLED=1 GOOS=linux go build -a -ldflags '-linkmode external -extldflags "-static"' -o ./mc-server-monitor ./cmd/web
 
-# Run the tests in the container
-# FROM build-stage AS run-test-stage
-# RUN go test -v ./...
+# # Run the tests in the container
+# # FROM build-stage AS run-test-stage
+# # RUN go test -v ./...
 
-FROM gcr.io/distroless/base-debian11 AS build-release-stage
+FROM gcr.io/distroless/static
+WORKDIR /app
 
-WORKDIR /
-
-COPY --from=build-stage /mc-server-monitor /mc-server-monitor
-
+COPY --from=build-stage /app/mc-server-monitor ./mc-server-monitor
 EXPOSE 8080
 
 USER nonroot:nonroot
-
-CMD ["/mc-server-monitor"]
+ENTRYPOINT ["/app/mc-server-monitor"]
