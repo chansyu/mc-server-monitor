@@ -24,9 +24,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	clients := NewClients()
+
 	go func() {
 		for line := range t.Lines {
-			broadcast(line.Text)
+			clients.broadcast(line.Text)
 		}
 	}()
 
@@ -41,7 +43,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		go handleClient(client)
+		go clients.handleClient(client)
 	}
 }
 
@@ -53,12 +55,27 @@ func getEnv(key string, defaultVal string) string {
 	return defaultVal
 }
 
-func handleClient(client net.Conn) {
+type Clients map[chan string]struct{}
+
+func NewClients() *Clients {
+	c := make(Clients)
+	return &c
+}
+
+func (c *Clients) broadcast(data string) {
+	for client := range *c {
+		client <- data
+	}
+}
+
+func (c *Clients) handleClient(client net.Conn) {
 	println("Client connected")
 	eventChan := make(chan string)
-	clients[eventChan] = struct{}{}
+
+	clientList := *c
+	clientList[eventChan] = struct{}{}
 	defer func() {
-		delete(clients, eventChan)
+		delete(clientList, eventChan)
 		close(eventChan)
 	}()
 
@@ -72,12 +89,4 @@ func handleClient(client net.Conn) {
 		}
 	}
 
-}
-
-var clients = make(map[chan string]struct{})
-
-func broadcast(data string) {
-	for client := range clients {
-		client <- data
-	}
 }
