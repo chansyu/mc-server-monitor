@@ -11,6 +11,8 @@ import (
 	"github.com/hpcloud/tail"
 )
 
+const PREFIX_FILTER = "[Server thread/INFO]:"
+
 func main() {
 	p := getEnv("LOG_PORT", "8081")
 	port, err := strconv.Atoi(p)
@@ -28,7 +30,15 @@ func main() {
 
 	go func() {
 		for line := range t.Lines {
-			clients.broadcast(line.Text)
+			text := line.Text
+			if len(text) < 35 {
+				continue
+			}
+			if prefix := text[11:32]; prefix != PREFIX_FILTER {
+				continue
+			}
+			clients.broadcast(text[33:])
+			log.Print("three")
 		}
 	}()
 
@@ -77,12 +87,12 @@ func (c *Clients) handleClient(client net.Conn) {
 	defer func() {
 		delete(clientList, eventChan)
 		close(eventChan)
+		client.Close()
 	}()
 
 	for {
 		data := <-eventChan
-		println("Sending data to client", data)
-		_, err := fmt.Fprintf(client, "data: %s\n", data)
+		_, err := fmt.Fprintf(client, "%s\n", data)
 		if err != nil {
 			fmt.Println("Client disconnected")
 			return
