@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # docker build -t mc-server-monitor:multistage .
 
-FROM golang:1.21 AS build-stage
+FROM golang:1.22 AS build-stage
 
 WORKDIR /app
 
