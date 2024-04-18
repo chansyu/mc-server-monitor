@@ -1,0 +1,6 @@
+{{define "title"}}Logs{{end}}
+{{define "main"}}
+<body hx-ext="sse" sse-connect="/logs_SSE">
+    <div sse-swap="message"></div>
+</body>
+{{end}}

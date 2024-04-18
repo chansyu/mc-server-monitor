@@ -2,8 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/go-playground/form/v4"
 	models "github.com/itzsBananas/mc-server-monitor/internal/models"
@@ -234,4 +236,30 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 		return err
 	}
 	return nil
+}
+
+func (app *application) logsGet(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	app.renderPage(w, http.StatusOK, "logs.tmpl.html", data)
+}
+
+func (app *application) logsSSE(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Expose-Headers", "Content-Type")
+
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+
+	rc := http.NewResponseController(w)
+
+	for i := 0; i < 10; i++ {
+		fmt.Fprintf(w, "data: <p>%s</p>\n\n", fmt.Sprintf("Event %d", i))
+		time.Sleep(2 * time.Second)
+		rc.SetWriteDeadline(time.Now().Add(5 * time.Second))
+		err := rc.Flush()
+		if err != nil {
+			app.infoLog.Print(err)
+		}
+	}
 }

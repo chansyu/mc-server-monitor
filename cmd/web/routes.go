@@ -35,5 +35,8 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodPost, "/restart", protectedMiddleware.ThenFunc(app.restart))
 	router.Handler(http.MethodPost, "/stop", protectedMiddleware.ThenFunc(app.stop))
 
+	router.Handler(http.MethodGet, "/logs", protectedMiddleware.ThenFunc(app.logsGet))
+	router.Handler(http.MethodGet, "/logs_SSE", protectedMiddleware.ThenFunc(app.logsSSE))
+
 	return app.recoverPanic(app.logRequest(secureHeaders(router)))
 }
