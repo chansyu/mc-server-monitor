@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
+	"fmt"
 	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"time"
@@ -27,6 +30,7 @@ type application struct {
 	adminConsole   admin_console.AdminConsole
 	sessionManager *scs.SessionManager
 	users          *models.UserModel
+	mcLogs         *LogsSocket
 }
 
 func main() {
@@ -81,6 +85,7 @@ func main() {
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 		users:          &models.UserModel{DB: db},
+		mcLogs:         OpenLogsSocket(net.TCPAddr{Port: 8081}),
 	}
 
 	srv := &http.Server{
@@ -136,4 +141,63 @@ func openDB(dsn string) (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+type LogsSocket struct {
+	addr    net.TCPAddr
+	clients map[string]chan string
+	conn    *net.TCPConn
+}
+
+func OpenLogsSocket(addr net.TCPAddr) *LogsSocket {
+	return &LogsSocket{addr: addr, clients: make(map[string]chan string)}
+}
+
+func (s *LogsSocket) AddClient(id string) (<-chan string, error) {
+	if existingChannel, ok := s.clients[id]; ok {
+		return existingChannel, fmt.Errorf("logsocket: client with %s already exist", id)
+	}
+	ch := make(chan string)
+	s.clients[id] = ch
+	if len(s.clients) == 1 {
+		conn, err := net.DialTCP("tcp", nil, &s.addr)
+		if err != nil {
+			log.Fatalf("error connecting to %v: %v", s.addr, err)
+		}
+		s.conn = conn
+		go func() {
+			for connScanner := bufio.NewScanner(conn); connScanner.Scan(); {
+				log.Println(connScanner.Text())
+				for _, cli := range s.clients {
+					cli <- connScanner.Text()
+				}
+
+				if err := connScanner.Err(); err != nil {
+					log.Fatalf("error reading from %s: %v", conn.RemoteAddr(), err)
+				}
+				if connScanner.Err() != nil {
+					log.Fatalf("error reading from %s: %v", conn.RemoteAddr(), err)
+				}
+			}
+		}()
+	}
+	log.Println("add client")
+	return ch, nil
+}
+
+func (s *LogsSocket) RemoveClient(id string) error {
+	if _, ok := s.clients[id]; !ok {
+		return fmt.Errorf("logsocket: client with %s doesn't exist", id)
+	}
+	delete(s.clients, id)
+
+	if len(s.clients) == 0 {
+		err := s.conn.Close()
+		log.Println("closed connection")
+		if err != nil {
+			return err
+		}
+	}
+	log.Println("closed client")
+	return nil
 }

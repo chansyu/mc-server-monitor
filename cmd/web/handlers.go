@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/go-playground/form/v4"
 	models "github.com/itzsBananas/mc-server-monitor/internal/models"
@@ -251,15 +250,23 @@ func (app *application) logsSSE(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
+	logs, err := app.mcLogs.AddClient(r.RemoteAddr)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
 	rc := http.NewResponseController(w)
 
-	for i := 0; i < 10; i++ {
-		fmt.Fprintf(w, "data: <p>%s</p>\n\n", fmt.Sprintf("Event %d", i))
-		time.Sleep(2 * time.Second)
-		rc.SetWriteDeadline(time.Now().Add(5 * time.Second))
+	for msg := range logs {
+		fmt.Fprintf(w, "data: <p>%s</p>\n\n", msg)
 		err := rc.Flush()
 		if err != nil {
-			app.infoLog.Print(err)
+			app.errorLog.Println(err)
 		}
+	}
+	app.infoLog.Println("Log has been closed")
+	err = app.mcLogs.RemoveClient(r.RemoteAddr)
+	if err != nil {
+		app.errorLog.Println(err)
 	}
 }

@@ -38,7 +38,6 @@ func main() {
 				continue
 			}
 			clients.broadcast(text[33:])
-			log.Print("three")
 		}
 	}()
 
@@ -92,6 +91,7 @@ func (c *Clients) handleClient(client net.Conn) {
 
 	for {
 		data := <-eventChan
+		log.Println(data)
 		_, err := fmt.Fprintf(client, "%s\n", data)
 		if err != nil {
 			fmt.Println("Client disconnected")
