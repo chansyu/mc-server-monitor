@@ -88,13 +88,14 @@ func main() {
 		mcLogs:         OpenLogsSocket(net.TCPAddr{Port: 8081}),
 	}
 
+	// Removed timeouts to support SSE seamlessly
 	srv := &http.Server{
-		Addr:         serverAddress,
-		ErrorLog:     errorLog,
-		Handler:      app.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		Addr:     serverAddress,
+		ErrorLog: errorLog,
+		Handler:  app.routes(),
+		// IdleTimeout: time.Minute,
+		// ReadTimeout:  5 * time.Second,
+		// WriteTimeout: 10 * time.Second,
 	}
 
 	infoLog.Printf("Starting server on %s", serverAddress)
@@ -189,6 +190,7 @@ func (s *LogsSocket) RemoveClient(id string) error {
 	if _, ok := s.clients[id]; !ok {
 		return fmt.Errorf("logsocket: client with %s doesn't exist", id)
 	}
+	close(s.clients[id])
 	delete(s.clients, id)
 
 	if len(s.clients) == 0 {

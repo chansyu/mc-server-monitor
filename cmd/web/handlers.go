@@ -256,6 +256,20 @@ func (app *application) logsSSE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rc := http.NewResponseController(w)
+	fmt.Fprint(w, "data: <p>Connection successful!</p>\n\n")
+	err = rc.Flush()
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
+	go func() {
+		<-r.Context().Done()
+		err = app.mcLogs.RemoveClient(r.RemoteAddr)
+		app.infoLog.Println("Log has been closed")
+		if err != nil {
+			app.errorLog.Println(err)
+		}
+	}()
 
 	for msg := range logs {
 		fmt.Fprintf(w, "data: <p>%s</p>\n\n", msg)
@@ -263,10 +277,5 @@ func (app *application) logsSSE(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			app.errorLog.Println(err)
 		}
-	}
-	app.infoLog.Println("Log has been closed")
-	err = app.mcLogs.RemoveClient(r.RemoteAddr)
-	if err != nil {
-		app.errorLog.Println(err)
 	}
 }
