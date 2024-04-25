@@ -37,7 +37,9 @@ func main() {
 			if prefix := text[11:32]; prefix != PREFIX_FILTER {
 				continue
 			}
-			clients.broadcast(text[33:])
+			msg := text[33:]
+			log.Printf("Message sent: \"%s\"", msg)
+			clients.broadcast(msg)
 		}
 	}()
 
@@ -78,7 +80,7 @@ func (c *Clients) broadcast(data string) {
 }
 
 func (c *Clients) handleClient(client net.Conn) {
-	println("Client connected")
+	log.Printf("%s - Client connected", client.RemoteAddr())
 	eventChan := make(chan string)
 
 	clientList := *c
@@ -91,10 +93,9 @@ func (c *Clients) handleClient(client net.Conn) {
 
 	for {
 		data := <-eventChan
-		log.Println(data)
 		_, err := fmt.Fprintf(client, "%s\n", data)
 		if err != nil {
-			fmt.Println("Client disconnected")
+			log.Printf("%s - Client disconnected", client.RemoteAddr())
 			return
 		}
 	}

@@ -168,7 +168,6 @@ func (s *LogsSocket) AddClient(id string) (<-chan string, error) {
 		s.conn = conn
 		go func() {
 			for connScanner := bufio.NewScanner(conn); connScanner.Scan(); {
-				log.Println(connScanner.Text())
 				for _, cli := range s.clients {
 					cli <- connScanner.Text()
 				}
@@ -182,7 +181,6 @@ func (s *LogsSocket) AddClient(id string) (<-chan string, error) {
 			}
 		}()
 	}
-	log.Println("add client")
 	return ch, nil
 }
 
@@ -195,11 +193,9 @@ func (s *LogsSocket) RemoveClient(id string) error {
 
 	if len(s.clients) == 0 {
 		err := s.conn.Close()
-		log.Println("closed connection")
 		if err != nil {
 			return err
 		}
 	}
-	log.Println("closed client")
 	return nil
 }

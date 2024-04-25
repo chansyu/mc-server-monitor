@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"html"
 	"net/http"
 	"strings"
 
@@ -256,7 +257,7 @@ func (app *application) logsSSE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rc := http.NewResponseController(w)
-	fmt.Fprint(w, "data: <p>Connection successful!</p>\n\n")
+	fmt.Fprint(w, "data: <p>(Re)connected!</p>\n\n")
 	err = rc.Flush()
 	if err != nil {
 		app.errorLog.Println(err)
@@ -265,14 +266,14 @@ func (app *application) logsSSE(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		<-r.Context().Done()
 		err = app.mcLogs.RemoveClient(r.RemoteAddr)
-		app.infoLog.Println("Log has been closed")
+		app.infoLog.Println("/Logs_SSE has been closed")
 		if err != nil {
 			app.errorLog.Println(err)
 		}
 	}()
 
 	for msg := range logs {
-		fmt.Fprintf(w, "data: <p>%s</p>\n\n", msg)
+		fmt.Fprintf(w, "data: <p>%s</p>\n\n", html.EscapeString(msg))
 		err := rc.Flush()
 		if err != nil {
 			app.errorLog.Println(err)
