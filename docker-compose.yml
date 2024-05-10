@@ -5,8 +5,6 @@ services:
         ports:
             - "25565:25565"
             - "25575:25575"
-        networks:
-            - mc-server-backend
         volumes:
             - ${DATA_PATH}:/data
         environment:
@@ -14,19 +12,3 @@ services:
             ENABLE_RCON: "TRUE"
             RCON_PASSWORD: ${RCON_PASSWORD}
             RCON_PORT: 25575
-    mc-server-monitor:
-        container_name: mc-server-monitor
-        image: cosmtrek/air # hot reloading
-        working_dir: /app/
-        networks:
-            - mc-server-backend
-        ports:
-            - "8080:8080"
-        env_file:
-            - path: ./.env
-        volumes:
-            - ./:/app/
-            - /var/run/docker.sock:/var/run/docker.sock # NOTE: requires docker daemon to be located in /var/run/docker.sock; linux tested only
-networks:
-    mc-server-backend:
-        driver: bridge
