@@ -39,10 +39,17 @@ func main() {
 	rconPassword := getEnv("RCON_PASSWORD", "password")
 	rconTimeoutString := getEnv("RCON_TIMEOUT", "5s")
 	dsn := getEnv("DSN", "file:./data/mc-server-monitor.db?_timeout=5000")
+	logsAddress := getEnv("LOGS_ADDRESS", "127.0.0.1:8081")
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	ip, err := net.ResolveTCPAddr("tcp", logsAddress)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	logsSocket := OpenLogsSocket(*ip)
 
 	rconTimeout, err := time.ParseDuration(rconTimeoutString)
 	if err != nil {
@@ -85,7 +92,7 @@ func main() {
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 		users:          &models.UserModel{DB: db},
-		mcLogs:         OpenLogsSocket(net.TCPAddr{Port: 8081}),
+		mcLogs:         logsSocket,
 	}
 
 	// Removed timeouts to support SSE seamlessly
