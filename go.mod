@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/compute v1.25.1
 	github.com/alexedwards/scs/sqlite3store v0.0.0-20240316134038-7e11d57e8885
 	github.com/alexedwards/scs/v2 v2.8.0
-	github.com/docker/docker v26.0.1+incompatible
+	github.com/docker/docker v27.1.1+incompatible
 	github.com/go-playground/form/v4 v4.2.1
 	github.com/hpcloud/tail v1.0.0
 	github.com/jltobler/go-rcon v0.3.0
