@@ -1,10 +1,10 @@
 {{define "response"}}
     {{if .Response.Success}}
-    <figure class="ok">
-        <strong class="block titlebar">Success</strong>
+    <figure>
+        <strong>Success</strong>
     {{else}}
-    <figure class="bad">
-        <strong class="block titlebar">Error</strong>
+    <figure>
+        <strong>Error</strong>
     {{end}}
         <figcaption>{{.Response.Command}} {{.Response.Args}}</figcaption>
         {{.Response.Message}}

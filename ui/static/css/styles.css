@@ -1,18 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* body {
-    height: 100vh;
-}
-
-.unscrollable-parent {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow: hidden;
-}
-
-.scrollable-child {
-    overflow-y: auto;
-  } */
