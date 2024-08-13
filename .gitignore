@@ -64,3 +64,5 @@ terraform.rc
 /data
 internal/models/testdata/test.db
 /.vscode
+node_modules
+ui/static/css/output.css
