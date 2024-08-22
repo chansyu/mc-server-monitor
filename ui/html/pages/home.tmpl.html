@@ -1,6 +1,6 @@
 {{define "title"}}Home{{end}}
 {{define "main"}}
-<main hx-boost="true" hx-push-url="false" hx-swap="afterbegin" hx-indicator="#response-spinner" hx-headers='{"X-CSRF-Token": "{{ .CSRFToken }}"}'>
+<main hx-boost="true" hx-push-url="false" hx-swap="afterbegin" hx-indicator=".htmx-indicator" hx-headers='{"X-CSRF-Token": "{{ .CSRFToken }}"}'>
     <h2>Home</h2>
     <section>
         <h3>Actions</h3>
@@ -44,7 +44,7 @@
                 <input class="btn" type="submit" value="Message"/>
             </fieldset>
         </form>
-        <img id="response-spinner" class="htmx-indicator" src="static/img/spinner.svg">
+        <span class="htmx-indicator loading loading-spinner loading-sm"></span>
     </section>
     <section>
         <h3>Responses</h3>
