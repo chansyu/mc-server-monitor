@@ -4,27 +4,27 @@
     <h2>Home</h2>
     <section>
         <h3>Actions</h3>
-        <button hx-post="/start"
+        <button class="btn" hx-post="/start"
             hx-target="#response-log">
         Start
         </button>
-        <button hx-post="/stop"
+        <button class="btn" hx-post="/stop"
                 hx-target="#response-log">
         Stop
         </button>
-        <button hx-post="/restart"
+        <button class="btn" hx-post="/restart"
                 hx-target="#response-log">
         Restart
         </button>
-        <button hx-get="/status"
+        <button class="btn" hx-get="/status"
                 hx-target="#response-log">
         Status
         </button>
-        <button hx-get="/seed"
+        <button class="btn" hx-get="/seed"
                 hx-target="#response-log">
         Seed
         </button>
-        <button hx-get="/players"
+        <button class="btn" hx-get="/players"
                 hx-target="#response-log">
         Players
         </button>
@@ -41,7 +41,7 @@
                     </select>
                 </p>
                 <p><label for="message-content">Content</label><input id="message" type="text" name="message"/></p>
-                <input type="submit" value="Message"/>
+                <input class="btn" type="submit" value="Message"/>
             </fieldset>
         </form>
         <img id="response-spinner" class="htmx-indicator" src="static/img/spinner.svg">

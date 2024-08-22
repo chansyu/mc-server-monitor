@@ -11,16 +11,16 @@
         <link rel='stylesheet' href='/static/css/output.css'>
     </head>
     <body>
-        <header>
-            <h1>Minecraft Server Monitor</h1>
-            <a href="/">Home</a>
-            <a href="/user/login">Login</a>
-            <form action='/user/logout' method='POST'>
+        <nav class="navbar bg-base-100 space-x-1 justify-center">
+            <h1 class="font-bold">Minecraft Server Monitor</h1>
+            <a class="btn" href="/">Home</a>
+            <a class="btn" href="/user/login">Login</a>
+            <form class="btn" action='/user/logout' method='POST'>
                 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
                 <button>Logout</button>
             </form>
-            <a href="/logs">Logs</a>
-        </header>
+            <a class="btn" href="/logs">Logs</a>
+        </nav>
         {{template "main" .}}
     </body>
 </html>
