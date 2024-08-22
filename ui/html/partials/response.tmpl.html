@@ -1,13 +1,14 @@
 {{define "response"}}
-    {{if .Response.Success}}
-    <figure>
-        <strong>Success</strong>
-    {{else}}
-    <figure>
-        <strong>Error</strong>
-    {{end}}
-        <figcaption>{{.Response.Command}} {{.Response.Args}}</figcaption>
-        {{.Response.Message}}
-        {{humanDate .Response.Timestamp}}
-    </figure>
+<!-- <tr>
+    <th>Command</th>
+    <th>Time</th>
+    <th>Status</th>
+    <th>Message</th>
+</tr> -->
+<tr>
+    <td>{{.Response.Command}}</td>
+    <td>{{humanDate .Response.Timestamp}}</td>
+    <td>{{status .Response.Success}}</td>
+    <td>{{.Response.Message}}</td>
+</tr>
 {{end}}
