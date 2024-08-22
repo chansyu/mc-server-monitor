@@ -1,27 +1,39 @@
 {{define "base"}}
-<!doctype html>
-<html lang='en'>
+<!DOCTYPE html>
+<html lang="en" data-theme="retro">
     <head>
-        <meta charset='utf-8'>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{template "title" .}} - MC Server Monitor</title>
-        <!-- <link rel='stylesheet' href='/static/css/styles.css'> -->
         <!-- <link rel='shortcut icon' href='/static/img/favicon.ico' type='image/x-icon'> -->
         <script src="/static/js/htmx@1.9.9.min.js"></script>
         <script src="/static/js/htmx-sse@1.9.9.min.js"></script>
-        <link rel='stylesheet' href='/static/css/output.css'>
+        <link rel="stylesheet" href="/static/css/output.css" />
     </head>
     <body>
-        <nav class="navbar bg-base-100 space-x-1 justify-center">
-            <h1 class="font-bold">Minecraft Server Monitor</h1>
-            <a class="btn" href="/">Home</a>
-            <a class="btn" href="/user/login">Login</a>
-            <form class="btn" action='/user/logout' method='POST'>
-                <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
-                <button>Logout</button>
-            </form>
-            <a class="btn" href="/logs">Logs</a>
-        </nav>
-        {{template "main" .}}
+        <div class="antialiased px-4 max-w-xl mx-auto py-8 md:max-w-4xl">
+            <h1 class="text-center text-4xl font-bold py-4">
+                Minecraft Server Monitor
+            </h1>
+            <nav class="navbar flex space-x-4 justify-center py-4">
+                <a class="btn" href="/">Home</a>
+                <a class="btn" href="/user/login">Login</a>
+                <form
+                    class="btn"
+                    action="/user/logout"
+                    method="POST"
+                >
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{.CSRFToken}}"
+                    />
+                    <button>Logout</button>
+                </form>
+                <a class="btn" href="/logs">Logs</a>
+            </nav>
+            {{template "main" .}}
+        </div>
     </body>
 </html>
 {{end}}
