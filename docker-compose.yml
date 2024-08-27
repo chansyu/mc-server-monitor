@@ -1,46 +1,46 @@
 services:
-    mc-server:
-        container_name: mc-server
-        image: itzg/minecraft-server
-        ports:
-            - "25565:25565"
-            - "25575:25575"
-        networks:
-            - mc-server-backend
-        volumes:
-            - ${DATA_PATH}:/data
-        environment:
-            EULA: "TRUE"
-            ENABLE_RCON: "TRUE"
-            RCON_PASSWORD: ${RCON_PASSWORD}
-            RCON_PORT: 25575
-    mc-server-monitor:
-        container_name: mc-server-monitor
-        image: cosmtrek/air # hot reloading
-        entrypoint: ["air", "-c", ".air_web.toml"]
-        working_dir: /app/
-        networks:
-            - mc-server-backend
-        ports:
-            - "8080:8080"
-        env_file:
-            - path: ./.env
-        volumes:
-            - ./:/app/
-            - /var/run/docker.sock:/var/run/docker.sock # NOTE: requires docker daemon to be located in /var/run/docker.sock; linux tested only
-    mc-logs:
-        container_name: mc-logs
-        image: cosmtrek/air # hot reloading
-        entrypoint: ["air", "-c", ".air_logs.toml"]
-        working_dir: /app/
-        networks:
-            - mc-server-backend
-        ports:
-            - "8081:8081"
-        env_file:
-            - path: ./.env
-        volumes:
-            - ./:/app/
+  mc-server:
+    container_name: mc-server
+    image: itzg/minecraft-server
+    ports:
+      - '25565:25565'
+      - '25575:25575'
+    networks:
+      - mc-server-backend
+    volumes:
+      - ${DATA_PATH}:/data
+    environment:
+      EULA: 'TRUE'
+      ENABLE_RCON: 'TRUE'
+      RCON_PASSWORD: ${RCON_PASSWORD}
+      RCON_PORT: 25575
+  mc-server-monitor:
+    container_name: mc-server-monitor
+    image: cosmtrek/air # hot reloading
+    entrypoint: ['air', '-c', '.air_web.toml']
+    working_dir: /app/
+    networks:
+      - mc-server-backend
+    ports:
+      - '8080:8080'
+    env_file:
+      - path: ./.env
+    volumes:
+      - ./:/app/
+      - /var/run/docker.sock:/var/run/docker.sock # NOTE: requires docker daemon to be located in /var/run/docker.sock; linux tested only
+  mc-logs:
+    container_name: mc-logs
+    image: cosmtrek/air # hot reloading
+    entrypoint: ['air', '-c', '.air_logs.toml']
+    working_dir: /app/
+    networks:
+      - mc-server-backend
+    ports:
+      - '8081:8081'
+    env_file:
+      - path: ./.env
+    volumes:
+      - ./:/app/
 networks:
-    mc-server-backend:
-        driver: bridge
+  mc-server-backend:
+    driver: bridge

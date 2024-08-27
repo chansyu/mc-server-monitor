@@ -1,41 +1,35 @@
 {{define "base"}}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="retro">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{{template "title" .}} - MC Server Monitor</title>
-        <!-- <link rel='shortcut icon' href='/static/img/favicon.ico' type='image/x-icon'> -->
-        <script src="/static/js/htmx@1.9.9.min.js"></script>
-        <script src="/static/js/htmx-sse@1.9.9.min.js"></script>
-        <link rel="stylesheet" href="/static/css/output.css" />
-    </head>
-    <body>
-        <div class="flex flex-col max-h-screen antialiased px-4 max-w-xl mx-auto py-8 md:max-w-4xl">
-            <h1 class="text-center text-4xl font-bold py-4">
-                Minecraft Server Monitor
-            </h1>
-            <nav class="navbar flex space-x-4 justify-center py-4">
-                <a class="btn" href="/">Home</a>
-                {{if .IsAuthenticated}}
-                <form
-                    action="/user/logout"
-                    method="POST"
-                >
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{.CSRFToken}}"
-                    />
-                    <input class="btn" type='submit' value='Logout'>
-                </form>
-                {{else}}
-                <a class="btn" href="/user/login">Login</a>
-                {{end}}
-                <a class="btn" href="/logs">Logs</a>
-            </nav>
-            {{template "main" .}}
-        </div>
-    </body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{template "title" .}} - MC Server Monitor</title>
+    <script src="/static/js/htmx@1.9.9.min.js"></script>
+    <script src="/static/js/htmx-sse@1.9.9.min.js"></script>
+    <link rel="stylesheet" href="/static/css/output.css" />
+  </head>
+  <body>
+    <div
+      class="mx-auto flex max-h-screen max-w-xl flex-col px-4 py-8 antialiased md:max-w-4xl"
+    >
+      <h1 class="py-4 text-center text-4xl font-bold">
+        Minecraft Server Monitor
+      </h1>
+      <nav class="navbar flex justify-center space-x-4 py-4">
+        <a class="btn" href="/">Home</a>
+        {{if .IsAuthenticated}}
+        <form action="/user/logout" method="POST">
+          <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+          <input class="btn" type="submit" value="Logout" />
+        </form>
+        {{else}}
+        <a class="btn" href="/user/login">Login</a>
+        {{end}}
+        <a class="btn" href="/logs">Logs</a>
+      </nav>
+      {{template "main" .}}
+    </div>
+  </body>
 </html>
 {{end}}

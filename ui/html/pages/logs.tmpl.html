@@ -1,6 +1,5 @@
-{{define "title"}}Logs{{end}}
-{{define "main"}}
+{{define "title"}}Logs{{end}} {{define "main"}}
 <body hx-ext="sse" sse-connect="/logs_SSE">
-    <div hx-swap="afterbegin" sse-swap="message"></div>
+  <div hx-swap="afterbegin" sse-swap="message"></div>
 </body>
 {{end}}
