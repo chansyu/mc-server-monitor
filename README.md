@@ -1,7 +1,6 @@
 # MC-Server-Monitor
 
 Minecraft Server Monitor is a Golang web server application to monitor one's own Minecraft server (thru RCON). This is targeted towards a small Minecraft server size (<10) to do basic adminstrative tasks.  
-A terraform script (for GCP) is provided to host the server on the internet quickly (thanks to [Futurice](https://github.com/futurice/terraform-examples) for help)
 
 ## Installation
 
@@ -51,28 +50,10 @@ Cost Breakdown
 -   VM-VM egress pricing - <=$0.15 per GB
 -   Cloud Run - Covered under Free tier for most cases; Refer to the [Cloud Run Pricing Page](https://cloud.google.com/run/pricing) for more details
 
-To get started, start a cloud project on [Google Cloud Platform](https://console.cloud.google.com). Take note of the PROJECT_ID.
-Then, create a bucket in the [storage section](https://console.cloud.google.com/storage/browser).
-Take note of the BUCKET_ID.
-
-Then, change the block in [locals.tf](deployments/locals.tf) based on the previous names. Choose other attributes based on your preference.
-
-Finally, use the command (w/ [Terraform](https://www.terraform.io/) installed) in the deployments directory
-
-```bash
-terraform init
-terraform apply
-```
-
-If successful, you can view the minecraft [server](https://console.cloud.google.com/compute/instances)
-
-![Diagram of the Cloud Architecture of MC-Server-Monitor](assets/cloud-architecture.png)
-
-Cloud Architecture of MC-Server-Monitor
 
 ## Acknowledgements
 
-Thanks to [itzg](https://github.com/itzg) and [Futurice](https://github.com/futurice) for the docker image and terraform script respectively.
+Thanks to [itzg](https://github.com/itzg) and [Futurice](https://github.com/futurice) for the docker image and prior terraform script respectively.
 
 ## Contributing
 

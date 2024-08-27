@@ -1,5 +1,8 @@
+include .env
+export
+
 server:
-	@docker compose up
+	@air -c .air_web.toml &	air -c .air_logs.toml & docker compose up --remove-orphans
 
 watch-static:
 	@npx tailwindcss -i ./ui/static/css/styles.css -o ./ui/static/css/output.css --watch
