@@ -17,9 +17,8 @@
             </h1>
             <nav class="navbar flex space-x-4 justify-center py-4">
                 <a class="btn" href="/">Home</a>
-                <a class="btn" href="/user/login">Login</a>
+                {{if .IsAuthenticated}}
                 <form
-                    class="btn"
                     action="/user/logout"
                     method="POST"
                 >
@@ -28,8 +27,11 @@
                         name="csrf_token"
                         value="{{.CSRFToken}}"
                     />
-                    <button>Logout</button>
+                    <input class="btn" type='submit' value='Logout'>
                 </form>
+                {{else}}
+                <a class="btn" href="/user/login">Login</a>
+                {{end}}
                 <a class="btn" href="/logs">Logs</a>
             </nav>
             {{template "main" .}}
