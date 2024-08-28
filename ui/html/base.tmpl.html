@@ -9,10 +9,10 @@
     <script src="/static/js/htmx-sse@1.9.9.min.js"></script>
     <link rel="stylesheet" href="/static/css/output.css" />
   </head>
-  <body>
-    <div
-      class="mx-auto flex max-h-screen max-w-xl flex-col px-4 py-8 antialiased md:max-w-4xl"
-    >
+  <body
+    class="mx-auto flex max-h-screen max-w-xl flex-col px-4 py-8 antialiased md:max-w-4xl"
+  >
+    <header>
       <h1 class="py-4 text-center text-4xl font-bold">
         Minecraft Server Monitor
       </h1>
@@ -28,8 +28,8 @@
         {{end}}
         <a class="btn" href="/logs">Logs</a>
       </nav>
-      {{template "main" .}}
-    </div>
+    </header>
+    {{template "main" .}}
   </body>
 </html>
 {{end}}

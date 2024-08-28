@@ -7,7 +7,7 @@
   hx-headers='{"X-CSRF-Token": "{{ .CSRFToken }}"}'
 >
   <section class="flex w-full flex-col">
-    <h3 class="text-2xl font-bold">Actions</h3>
+    <h2 class="text-2xl font-bold">Actions</h2>
     {{if .IsAuthenticated}}
     <div class="flex justify-center space-x-4">
       <button class="btn" hx-post="/start" hx-target="#response-log">
@@ -32,31 +32,29 @@
       </button>
     </div>
     <form action="/message" method="post" hx-target="#response-log">
-      <fieldset>
-        <legend class="text-lg">Message</legend>
-        <div class="join join-vertical sm:join-horizontal">
-          <label class="mr-2" for="user">To:</label>
-          <select
+      <fieldset class="join join-vertical sm:join-horizontal">
+        <legend class="text-lg mb-2">Message</legend>
+        <label class="mr-2" for="user">To:</label>
+        <select
             class="join-item select select-bordered"
             id="user"
             name="user"
-          >
+        >
             <option value="All Players">All Players</option>
             {{range .Players}}
             <option value="{{.}}">{{.}}</option>
             {{end}}
-          </select>
-          <input class="join-item" id="message" type="text" name="message" />
-          <input class="btn join-item" type="submit" value="Message" />
-        </div>
+        </select>
+        <input class="join-item" id="message" type="text" name="message" />
+        <input class="btn join-item" type="submit" value="Message" />
       </fieldset>
     </form>
   </section>
   <section>
-    <h3 class="py-2 text-2xl font-bold">
+    <h2 class="py-2 text-2xl font-bold">
       Responses
       <span class="htmx-indicator loading loading-spinner loading-md"></span>
-    </h3>
+    </h2>
     <div class="max-h-72 overflow-x-auto overflow-y-auto md:max-h-96">
       <table class="table table-pin-rows">
         <thead>
