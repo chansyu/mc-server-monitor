@@ -1,8 +1,8 @@
-package admin_console
+package console
 
 import "context"
 
-type AdminConsole interface {
+type Admin interface {
 	Start(context.Context) error
 	Restart(context.Context) error
 	Stop(context.Context) error

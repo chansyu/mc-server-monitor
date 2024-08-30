@@ -1,4 +1,4 @@
-package admin_console
+package console
 
 import (
 	"context"
@@ -7,38 +7,38 @@ import (
 	"github.com/docker/docker/client"
 )
 
-type LocalAdminConsole struct {
+type Local struct {
 	client      *client.Client
 	containerID string
 }
 
 // start, restart, stop, maybe see if it's on too?
 // only to be used locally...
-func LocalAdminConsoleOpen(containerID string) (*LocalAdminConsole, error) {
+func LocalOpen(containerID string) (*Local, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}
 
-	return &LocalAdminConsole{
+	return &Local{
 		client:      cli,
 		containerID: containerID,
 	}, nil
 }
 
-func (c *LocalAdminConsole) Start(ctx context.Context) error {
+func (c *Local) Start(ctx context.Context) error {
 	return c.client.ContainerStart(ctx, c.containerID, container.StartOptions{})
 }
 
-func (c *LocalAdminConsole) Restart(ctx context.Context) error {
+func (c *Local) Restart(ctx context.Context) error {
 	return c.client.ContainerRestart(ctx, c.containerID, container.StopOptions{})
 }
 
-func (c *LocalAdminConsole) Stop(ctx context.Context) error {
+func (c *Local) Stop(ctx context.Context) error {
 	return c.client.ContainerStop(ctx, c.containerID, container.StopOptions{})
 }
 
-func (c *LocalAdminConsole) IsOnline(ctx context.Context) (bool, error) {
+func (c *Local) IsOnline(ctx context.Context) (bool, error) {
 	stats, err := c.client.ContainerInspect(ctx, c.containerID)
 	if err != nil {
 		return false, nil
@@ -46,6 +46,6 @@ func (c *LocalAdminConsole) IsOnline(ctx context.Context) (bool, error) {
 	return stats.ContainerJSONBase.State.Running, nil
 }
 
-func (c *LocalAdminConsole) Close() error {
+func (c *Local) Close() error {
 	return c.client.Close()
 }

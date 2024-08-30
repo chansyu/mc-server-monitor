@@ -1,4 +1,4 @@
-package admin_console
+package console
 
 import (
 	"context"
@@ -7,19 +7,19 @@ import (
 	computepb "cloud.google.com/go/compute/apiv1/computepb"
 )
 
-type GCPAdminConsole struct {
+type GCP struct {
 	project  string
 	instance string
 	zone     string
 }
 
-func GCPAdminConsoleOpen(project, instance, zone string) (*GCPAdminConsole, error) {
-	return &GCPAdminConsole{
+func GCPOpen(project, instance, zone string) (*GCP, error) {
+	return &GCP{
 		project, instance, zone,
 	}, nil
 }
 
-func (c GCPAdminConsole) Start(ctx context.Context) error {
+func (c GCP) Start(ctx context.Context) error {
 	client, err := compute.NewInstancesRESTClient(ctx)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (c GCPAdminConsole) Start(ctx context.Context) error {
 	return nil
 }
 
-func (c GCPAdminConsole) Restart(ctx context.Context) error {
+func (c GCP) Restart(ctx context.Context) error {
 	client, err := compute.NewInstancesRESTClient(ctx)
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (c GCPAdminConsole) Restart(ctx context.Context) error {
 	return nil
 }
 
-func (c GCPAdminConsole) Stop(ctx context.Context) error {
+func (c GCP) Stop(ctx context.Context) error {
 	client, err := compute.NewInstancesRESTClient(ctx)
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func (c GCPAdminConsole) Stop(ctx context.Context) error {
 	return nil
 }
 
-func (c GCPAdminConsole) IsOnline(ctx context.Context) (bool, error) {
+func (c GCP) IsOnline(ctx context.Context) (bool, error) {
 	client, err := compute.NewInstancesRESTClient(ctx)
 	if err != nil {
 		return false, err
@@ -110,6 +110,6 @@ func (c GCPAdminConsole) IsOnline(ctx context.Context) (bool, error) {
 	return *instance.Status == "RUNNING", nil
 }
 
-func (c GCPAdminConsole) Close() error {
+func (c GCP) Close() error {
 	return nil
 }

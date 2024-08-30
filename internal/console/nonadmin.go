@@ -8,26 +8,26 @@ import (
 	"github.com/jltobler/go-rcon"
 )
 
-type ConsoleInterface interface {
+type NonAdmin interface {
 	Players() ([]string, error)
 	Seed() (string, error)
 	Broadcast(msg string) error
 	Message(user string, msg string) error
 }
 
-type RCONConsole struct {
+type RCON struct {
 	con     *rcon.Client
 	timeout time.Duration
 }
 
-func Open(port string, password string, timeout time.Duration) *RCONConsole {
-	return &RCONConsole{
+func Open(port string, password string, timeout time.Duration) *RCON {
+	return &RCON{
 		rcon.NewClient(port, password),
 		timeout,
 	}
 }
 
-func (c *RCONConsole) sendCommand(command string) (string, error) {
+func (c *RCON) sendCommand(command string) (string, error) {
 	success := make(chan string, 1)
 	fail := make(chan error, 1)
 
@@ -51,7 +51,7 @@ func (c *RCONConsole) sendCommand(command string) (string, error) {
 }
 
 // "There are x users: Bob, April\n" // what if no users
-func (c *RCONConsole) Players() ([]string, error) {
+func (c *RCON) Players() ([]string, error) {
 	reply, err := c.sendCommand("/list")
 
 	if err != nil {
@@ -72,7 +72,7 @@ func (c *RCONConsole) Players() ([]string, error) {
 }
 
 // "Seed: [1871644822592853811]"
-func (c *RCONConsole) Seed() (string, error) {
+func (c *RCON) Seed() (string, error) {
 	reply, err := c.sendCommand("/seed")
 
 	if err != nil {
@@ -86,13 +86,13 @@ func (c *RCONConsole) Seed() (string, error) {
 	return reply[7 : len(reply)-1], nil
 }
 
-func (c *RCONConsole) Broadcast(message string) error {
+func (c *RCON) Broadcast(message string) error {
 	command := fmt.Sprintf("/say %s", message)
 	_, err := c.sendCommand(command)
 	return err
 }
 
-func (c *RCONConsole) Message(user string, message string) error {
+func (c *RCON) Message(user string, message string) error {
 	command := fmt.Sprintf("/msg %s %s", user, message)
 	reply, err := c.sendCommand(command)
 

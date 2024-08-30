@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
-	"fmt"
 	"html/template"
 	"log"
 	"net"
@@ -14,8 +12,8 @@ import (
 	"github.com/alexedwards/scs/sqlite3store"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
-	admin_console "github.com/itzsBananas/mc-server-monitor/internal/admin-console"
 	console "github.com/itzsBananas/mc-server-monitor/internal/console"
+	"github.com/itzsBananas/mc-server-monitor/internal/logs"
 	"github.com/itzsBananas/mc-server-monitor/internal/models"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -26,11 +24,11 @@ type application struct {
 	infoLog        *log.Logger
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
-	rconConsole    console.ConsoleInterface
-	adminConsole   admin_console.AdminConsole
+	rconConsole    console.NonAdmin
+	adminConsole   console.Admin
 	sessionManager *scs.SessionManager
 	users          *models.UserModel
-	mcLogs         *LogsSocket
+	mcLogs         logs.SocketInterface
 }
 
 func main() {
@@ -49,7 +47,7 @@ func main() {
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	logsSocket := OpenLogsSocket(*ip)
+	logsSocket := logs.OpenSocket(*ip)
 
 	rconTimeout, err := time.ParseDuration(rconTimeoutString)
 	if err != nil {
@@ -118,20 +116,20 @@ func getEnv(key string, defaultVal string) string {
 	return defaultVal
 }
 
-func getAdminConsole() (admin_console.AdminConsole, error) {
+func getAdminConsole() (console.Admin, error) {
 	mode := getEnv("MODE", "production")
 
-	var adminConsole admin_console.AdminConsole
+	var adminConsole console.Admin
 	var err error
 	if mode == "production" {
 		gcpProject := getEnv("GCP_PROJECT", "PROJECT_NAME")
 		gcpZone := getEnv("GCP_ZONE", "ZONE_NAME")
 		gcpInstance := getEnv("GCP_INSTANCE", "INSTANCE_NAME")
 
-		adminConsole, err = admin_console.GCPAdminConsoleOpen(gcpProject, gcpInstance, gcpZone)
+		adminConsole, err = console.GCPOpen(gcpProject, gcpInstance, gcpZone)
 	} else {
 		localContainerId := getEnv("LOCAL_CONTAINER_ID", "mc-server")
-		adminConsole, err = admin_console.LocalAdminConsoleOpen(localContainerId)
+		adminConsole, err = console.LocalOpen(localContainerId)
 	}
 
 	if err != nil {
@@ -149,60 +147,4 @@ func openDB(dsn string) (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
-}
-
-type LogsSocket struct {
-	addr    net.TCPAddr
-	clients map[string]chan string
-	conn    *net.TCPConn
-}
-
-func OpenLogsSocket(addr net.TCPAddr) *LogsSocket {
-	return &LogsSocket{addr: addr, clients: make(map[string]chan string)}
-}
-
-func (s *LogsSocket) AddClient(id string) (<-chan string, error) {
-	if existingChannel, ok := s.clients[id]; ok {
-		return existingChannel, fmt.Errorf("logsocket: client with %s already exist", id)
-	}
-	ch := make(chan string)
-	s.clients[id] = ch
-	if len(s.clients) == 1 {
-		conn, err := net.DialTCP("tcp", nil, &s.addr)
-		if err != nil {
-			log.Fatalf("error connecting to %v: %v", s.addr, err)
-		}
-		s.conn = conn
-		go func() {
-			for connScanner := bufio.NewScanner(conn); connScanner.Scan(); {
-				for _, cli := range s.clients {
-					cli <- connScanner.Text()
-				}
-
-				if err := connScanner.Err(); err != nil {
-					log.Fatalf("error reading from %s: %v", conn.RemoteAddr(), err)
-				}
-				if connScanner.Err() != nil {
-					log.Fatalf("error reading from %s: %v", conn.RemoteAddr(), err)
-				}
-			}
-		}()
-	}
-	return ch, nil
-}
-
-func (s *LogsSocket) RemoveClient(id string) error {
-	if _, ok := s.clients[id]; !ok {
-		return fmt.Errorf("logsocket: client with %s doesn't exist", id)
-	}
-	close(s.clients[id])
-	delete(s.clients, id)
-
-	if len(s.clients) == 0 {
-		err := s.conn.Close()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
