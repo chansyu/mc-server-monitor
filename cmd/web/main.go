@@ -27,7 +27,7 @@ type application struct {
 	rconConsole    console.NonAdmin
 	adminConsole   console.Admin
 	sessionManager *scs.SessionManager
-	users          *models.UserModel
+	users          models.UserModelInterface
 	mcLogs         logs.SocketInterface
 }
 
