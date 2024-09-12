@@ -4,16 +4,16 @@ import "github.com/itzsBananas/mc-server-monitor/internal/models"
 
 type UserModel struct{}
 
-func (m *UserModel) Insert(email, password string) error {
-	switch email {
+func (m *UserModel) Insert(username, password string) error {
+	switch username {
 	case "dupe@example.com":
-		return models.ErrDuplicateEmail
+		return models.ErrDuplicateUsername
 	default:
 		return nil
 	}
 }
-func (m *UserModel) Authenticate(email, password string) (int, error) {
-	if email == "alice@example.com" && password == "pa$$word" {
+func (m *UserModel) Authenticate(username, password string) (int, error) {
+	if username == "alice@example.com" && password == "pa$$word" {
 		return 1, nil
 	}
 	return 0, models.ErrInvalidCredentials
