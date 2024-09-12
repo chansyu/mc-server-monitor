@@ -29,6 +29,7 @@
             name="username"
             class="grow"
             placeholder="Username"
+            value="{{.UserAutofill.Username}}"
           />
         </div>
         {{with .Form.FieldErrors.Username}}
@@ -58,6 +59,7 @@
             name="password"
             class="grow"
             placeholder="Password"
+            value="{{.UserAutofill.Password}}"
           />
         </div>
         {{with .Form.FieldErrors.Password}}

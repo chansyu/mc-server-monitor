@@ -4,6 +4,9 @@ import "github.com/itzsBananas/mc-server-monitor/internal/models"
 
 type UserModel struct{}
 
+var Username = "alice@example.com"
+var Password = "pa$$word"
+
 func (m *UserModel) Insert(username, password string) error {
 	switch username {
 	case "dupe@example.com":
@@ -13,7 +16,7 @@ func (m *UserModel) Insert(username, password string) error {
 	}
 }
 func (m *UserModel) Authenticate(username, password string) (int, error) {
-	if username == "alice@example.com" && password == "pa$$word" {
+	if username == Username && password == Password {
 		return 1, nil
 	}
 	return 0, models.ErrInvalidCredentials

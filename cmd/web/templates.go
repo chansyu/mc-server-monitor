@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/itzsBananas/mc-server-monitor/internal/mocks"
 	"github.com/itzsBananas/mc-server-monitor/internal/models"
 	"github.com/itzsBananas/mc-server-monitor/ui"
 	"github.com/justinas/nosurf"
@@ -18,6 +19,7 @@ type templateData struct {
 	Form            userLoginForm
 	CSRFToken       string
 	IsAuthenticated bool
+	UserAutofill    struct{ Username, Password string }
 }
 
 func humanDate(t time.Time) string {
@@ -80,8 +82,14 @@ func newTemplateCache() (map[string]*template.Template, error) {
 }
 
 func (app *application) newTemplateData(r *http.Request) *templateData {
+	var userAutofill = struct{ Username, Password string }{}
+	if app.mockMode {
+		userAutofill.Username = mocks.Username
+		userAutofill.Password = mocks.Password
+	}
 	return &templateData{
 		CSRFToken:       nosurf.Token(r),
 		IsAuthenticated: app.isAuthenticated(r),
+		UserAutofill:    userAutofill,
 	}
 }
