@@ -20,6 +20,7 @@ type templateData struct {
 	CSRFToken       string
 	IsAuthenticated bool
 	UserAutofill    struct{ Username, Password string }
+	MockMode        bool
 }
 
 func humanDate(t time.Time) string {
@@ -91,5 +92,6 @@ func (app *application) newTemplateData(r *http.Request) *templateData {
 		CSRFToken:       nosurf.Token(r),
 		IsAuthenticated: app.isAuthenticated(r),
 		UserAutofill:    userAutofill,
+		MockMode:        app.mockMode,
 	}
 }

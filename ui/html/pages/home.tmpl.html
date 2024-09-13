@@ -33,17 +33,13 @@
     </div>
     <form action="/message" method="post" hx-target="#response-log">
       <fieldset class="join join-vertical sm:join-horizontal">
-        <legend class="text-lg mb-2">Message</legend>
+        <legend class="mb-2 text-lg">Message</legend>
         <label class="mr-2" for="user">To:</label>
-        <select
-            class="join-item select select-bordered"
-            id="user"
-            name="user"
-        >
-            <option value="All Players">All Players</option>
-            {{range .Players}}
-            <option value="{{.}}">{{.}}</option>
-            {{end}}
+        <select class="join-item select select-bordered" id="user" name="user">
+          <option value="All Players">All Players</option>
+          {{range .Players}}
+          <option value="{{.}}">{{.}}</option>
+          {{end}}
         </select>
         <input class="join-item" id="message" type="text" name="message" />
         <input class="btn join-item" type="submit" value="Message" />

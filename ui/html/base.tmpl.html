@@ -13,9 +13,12 @@
     class="mx-auto flex max-h-screen max-w-xl flex-col px-4 py-8 antialiased md:max-w-4xl"
   >
     <header>
-      <h1 class="py-4 text-center text-4xl font-bold">
-        Minecraft Server Monitor
-      </h1>
+      <div class="indicator mx-auto block py-4">
+        {{if .MockMode }}
+        <span class="badge indicator-item badge-secondary"> Mocked </span>
+        {{end}}
+        <h1 class="text-4xl font-bold">Minecraft Server Monitor</h1>
+      </div>
       <nav class="navbar flex justify-center space-x-4 py-4">
         <a class="btn" href="/">Home</a>
         {{if .IsAuthenticated}}
