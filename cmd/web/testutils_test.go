@@ -55,7 +55,7 @@ func newTestApplication(t *testing.T) *application {
 		infoLog:        log.New(io.Discard, "", 0),
 		rconConsole:    mocks.NonAdminConsole{},
 		templateCache:  templateCache,
-		adminConsole:   mocks.AdminConsole{},
+		adminConsole:   &mocks.AdminConsole{},
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 		users:          &mocks.UserModel{},

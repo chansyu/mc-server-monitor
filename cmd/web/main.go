@@ -152,7 +152,7 @@ func newMockApp() (*application, error) {
 		infoLog:        log.New(io.Discard, "", 0),
 		rconConsole:    mocks.NonAdminConsole{},
 		templateCache:  templateCache,
-		adminConsole:   mocks.AdminConsole{},
+		adminConsole:   &mocks.AdminConsole{},
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 		users:          &mocks.UserModel{},
