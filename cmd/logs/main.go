@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/hpcloud/tail"
 )
@@ -21,25 +22,15 @@ func main() {
 	}
 	logPath := getEnv("LOG_PATH", "./data/mc-server/logs/latest.log")
 
-	t, err := tail.TailFile(logPath, tail.Config{Location: &tail.SeekInfo{Offset: 0, Whence: io.SeekEnd}, Follow: true})
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	clients := NewClients()
 
 	go func() {
-		for line := range t.Lines {
-			text := line.Text
-			if len(text) < 35 {
-				continue
+		for {
+			err = listenLogs(logPath, clients)
+			if err != nil {
+				log.Fatal(err)
 			}
-			if prefix := text[11:32]; prefix != PREFIX_FILTER {
-				continue
-			}
-			msg := text[33:]
-			log.Printf("Message sent: \"%s\"", msg)
-			clients.broadcast(msg)
+			<-time.After(2 * time.Second)
 		}
 	}()
 
@@ -56,6 +47,28 @@ func main() {
 		}
 		go clients.handleClient(client)
 	}
+}
+
+func listenLogs(logPath string, clients *Clients) error {
+	t, err := tail.TailFile(logPath, tail.Config{Location: &tail.SeekInfo{Offset: 0, Whence: io.SeekEnd}, Follow: true})
+	if err != nil {
+		return err
+	}
+
+	for line := range t.Lines {
+		text := line.Text
+		if len(text) < 35 {
+			continue
+		}
+		if prefix := text[11:32]; prefix != PREFIX_FILTER {
+			continue
+		}
+		msg := text[33:]
+		log.Printf("Message sent: \"%s\"", msg)
+		clients.broadcast(msg)
+	}
+
+	return nil
 }
 
 func getEnv(key string, defaultVal string) string {

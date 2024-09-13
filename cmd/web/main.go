@@ -61,6 +61,13 @@ func main() {
 
 	app.infoLog = infoLog
 	app.errorLog = errorLog
+	if s, ok := app.mcLogs.(*logs.Socket); ok {
+		go func() {
+			for msg := range s.Logs {
+				errorLog.Println(msg)
+			}
+		}()
+	}
 
 	srv := &http.Server{
 		Addr:     serverAddress,
