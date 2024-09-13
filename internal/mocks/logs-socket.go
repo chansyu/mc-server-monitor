@@ -1,30 +1,49 @@
 package mocks
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type LogsSocket struct {
-	clients map[string]chan string
+	clients map[string]client
+}
+
+type client struct {
+	cli  chan string
+	done chan string
 }
 
 func OpenLogsSocket() LogsSocket {
-	return LogsSocket{make(map[string]chan string)}
+	return LogsSocket{make(map[string]client)}
 }
 
 func (s *LogsSocket) AddClient(id string) (<-chan string, error) {
-	if existingChannel, ok := s.clients[id]; ok {
-		return existingChannel, fmt.Errorf("logsocket: client with %s already exist", id)
+	if existingClient, ok := s.clients[id]; ok {
+		return existingClient.cli, fmt.Errorf("logsocket: client with %s already exist", id)
 	}
-	ch := make(chan string)
-	s.clients[id] = ch
+	c := client{make(chan string), make(chan string)}
 
-	return ch, nil
+	go func() {
+		for {
+			select {
+			case <-time.After(2 * time.Second):
+				c.cli <- "hey there"
+			case <-c.done:
+				return
+			}
+		}
+	}()
+	s.clients[id] = c
+	return c.cli, nil
 }
 
 func (s *LogsSocket) RemoveClient(id string) error {
 	if _, ok := s.clients[id]; !ok {
 		return fmt.Errorf("logsocket: client with %s doesn't exist", id)
 	}
-	close(s.clients[id])
+	close(s.clients[id].cli)
+	close(s.clients[id].done)
 	delete(s.clients, id)
 	return nil
 }

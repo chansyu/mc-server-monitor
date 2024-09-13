@@ -252,6 +252,7 @@ func (app *application) logsSSE(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 
 	logs, err := app.mcLogs.AddClient(r.RemoteAddr)
+	app.infoLog.Printf("Attempting to open /Logs_SSE for client %s", r.RemoteAddr)
 	if err != nil {
 		app.serverError(w, err)
 	}
@@ -266,7 +267,7 @@ func (app *application) logsSSE(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		<-r.Context().Done()
 		err = app.mcLogs.RemoveClient(r.RemoteAddr)
-		app.infoLog.Println("/Logs_SSE has been closed")
+		app.infoLog.Printf("Attempting to close /Logs_SSE for client %s", r.RemoteAddr)
 		if err != nil {
 			app.errorLog.Println(err)
 		}
