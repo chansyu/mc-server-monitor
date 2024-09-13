@@ -137,12 +137,22 @@ func (app *application) message(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response models.Response
+	if input.User == "" || input.Message == "" {
+		response = models.NewResponse("Msg", []string{""})
+		response.Error()
+		response.Message = "Cannot send empty message."
+		data := app.newTemplateData(r)
+		data.Response = response
+		app.renderPartial(w, http.StatusOK, "response.tmpl.html", data)
+		return
+	}
+
 	if input.User == "All Players" {
 		err = app.rconConsole.Broadcast(input.Message)
-		response = models.NewResponse("Broadcast", []string{input.Message})
+		response = models.NewResponse("Msg: All Players", []string{input.Message})
 	} else {
 		err = app.rconConsole.Message(input.User, input.Message)
-		response = models.NewResponse("Message", []string{input.Message})
+		response = models.NewResponse(fmt.Sprintf("Msg: %s", input.User), []string{input.Message})
 	}
 
 	if err != nil {
