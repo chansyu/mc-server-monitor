@@ -46,7 +46,13 @@
           <option value="{{.}}">{{.}}</option>
           {{end}}
         </select>
-        <input class="join-item" id="message" type="text" name="message" />
+        <input
+          class="join-item"
+          id="message"
+          type="text"
+          name="message"
+          autocomplete="off"
+        />
         <input class="btn join-item" type="submit" value="Message" />
       </fieldset>
     </form>
