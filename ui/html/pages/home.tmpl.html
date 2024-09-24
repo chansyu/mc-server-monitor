@@ -31,7 +31,12 @@
         Players
       </button>
     </div>
-    <form action="/message" method="post" hx-target="#response-log">
+    <form
+      action="/message"
+      method="post"
+      hx-target="#response-log"
+      hx-on:htmx:after-request="clearText()"
+    >
       <fieldset class="join join-vertical sm:join-horizontal">
         <legend class="mb-2 text-lg">Message</legend>
         <label class="mr-2" for="user">To:</label>
@@ -41,7 +46,13 @@
           <option value="{{.}}">{{.}}</option>
           {{end}}
         </select>
-        <input class="join-item" id="message" type="text" name="message" />
+        <input
+          class="join-item"
+          id="message"
+          type="text"
+          name="message"
+          autocomplete="off"
+        />
         <input class="btn join-item" type="submit" value="Message" />
       </fieldset>
     </form>
@@ -66,4 +77,11 @@
     </div>
   </section>
 </main>
+{{end}} {{define "script"}}
+<script>
+  function clearText(event) {
+    let input1 = document.getElementById('message')
+    input1.value = ''
+  }
+</script>
 {{end}}

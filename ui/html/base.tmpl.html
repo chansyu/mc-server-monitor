@@ -8,6 +8,7 @@
     <script src="/static/js/htmx@1.9.9.min.js"></script>
     <script src="/static/js/htmx-sse@1.9.9.min.js"></script>
     <link rel="stylesheet" href="/static/css/output.css" />
+    {{template "script" .}}
   </head>
   <body
     class="mx-auto flex max-h-screen max-w-xl flex-col px-4 py-8 antialiased md:max-w-4xl"
@@ -35,4 +36,4 @@
     {{template "main" .}}
   </body>
 </html>
-{{end}}
+{{end}} {{define "script"}} {{end}}
