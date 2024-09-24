@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jltobler/go-rcon"
+	"github.com/gorcon/rcon"
 )
 
 type NonAdmin interface {
@@ -16,38 +16,30 @@ type NonAdmin interface {
 }
 
 type RCON struct {
-	con     *rcon.Client
-	timeout time.Duration
+	port     string
+	password string
+	timeout  time.Duration
 }
 
 func Open(port string, password string, timeout time.Duration) *RCON {
 	return &RCON{
-		rcon.NewClient(port, password),
-		timeout,
+		port, password, timeout,
 	}
 }
 
 func (c *RCON) sendCommand(command string) (string, error) {
-	success := make(chan string, 1)
-	fail := make(chan error, 1)
-
-	go func() {
-		reply, err := c.con.Send(command)
-		if err != nil {
-			fail <- fmt.Errorf("%w: %v", ErrInternal, err)
-		} else {
-			success <- reply
-		}
-	}()
-
-	select {
-	case reply := <-success:
-		return reply, nil
-	case err := <-fail:
+	conn, err := rcon.Dial(c.port, c.password, rcon.SetDeadline(c.timeout))
+	if err != nil {
 		return "", err
-	case <-time.After(c.timeout):
-		return "", ErrTimeout
 	}
+	defer conn.Close()
+
+	resp, err := conn.Execute(command)
+	if err != nil {
+		return "", err
+	}
+
+	return resp, nil
 }
 
 // "There are x users: Bob, April\n" // what if no users
@@ -100,7 +92,6 @@ func (c *RCON) Message(user string, message string) error {
 		return err
 	}
 
-	// TODO: need to check if user is not available
 	if reply == "No player was found" {
 		return ErrNoPlayer
 	}

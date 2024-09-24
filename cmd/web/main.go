@@ -81,7 +81,7 @@ func main() {
 }
 
 func newProductionApp() (*application, func(), error) {
-	rconAddress := getEnv("RCON_ADDRESS", "rcon://127.0.0.1:25575")
+	rconAddress := getEnv("RCON_ADDRESS", "127.0.0.1:25575")
 	rconPassword := getEnv("RCON_PASSWORD", "password")
 	rconTimeoutString := getEnv("RCON_TIMEOUT", "5s")
 	dsn := getEnv("DSN", "file:./data/mc-server-monitor.db?_timeout=5000")
