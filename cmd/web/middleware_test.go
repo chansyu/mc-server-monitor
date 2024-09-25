@@ -26,7 +26,7 @@ func TestSecureHeaders(t *testing.T) {
 
 	rs := rr.Result()
 
-	expectedValue := "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+	expectedValue := "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
 	assert.Equal(t, rs.Header.Get("Content-Security-Policy"), expectedValue)
 
 	expectedValue = "origin-when-cross-origin"
